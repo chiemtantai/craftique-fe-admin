@@ -1,0 +1,107 @@
+/* LoginPage.css */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  .login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .logo-section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px;
+    cursor: pointer;
+  }
+  
+  .login-logo {
+    width: 60px;
+    height: 60px;
+    margin-right: 10px;
+  }
+  
+  .brand-name {
+    font-size: 24px;
+    color: #333;
+    margin: 0;
+  }
+  
+  .login-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 25px;
+    text-align: left;
+  }
+  
+  .login-form {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .login-input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #f0f0f0;
+    font-size: 16px;
+  }
+  
+  .login-input:focus {
+    outline: none;
+    border-color: #FFCC80;
+  }
+  
+  .login-button {
+    width: auto;
+    padding: 12px 15px;
+    background-color: #FFCC80;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-bottom: 15px;
+  }
+  
+  .login-button:hover {
+    background-color: #FFA726;
+  }
+  
+  .forgot-password {
+    text-align: right;
+  }
+  
+  .forgot-password a {
+    color: #0066cc;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+  .forgot-password a:hover {
+    text-decoration: underline;
+  }
+  
+  /* For mobile devices */
+  @media (max-width: 480px) {
+    .login-card {
+      width: 90%;
+    }
+  }
