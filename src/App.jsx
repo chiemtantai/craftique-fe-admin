@@ -3,6 +3,8 @@ import React from 'react';
 import LoginPage from './components/login/LoginPage';
 import Layout from './components/layout/Layout';
 import ManagePage from './components/manage/ManagePage';
+import OrderPage from './components/order/OrderPage'; // ✅ Kiểm tra đường dẫn
+import OrderDetailPage from './components/order/OrderDetailPage';
 import './App.css';
 
 function App() {
@@ -14,8 +16,9 @@ function App() {
         
         {/* Các route khác có Layout */}
         <Route path="/manage" element={<Layout><ManagePage /></Layout>} />
-        {/* <Route path="/order" element={<Layout><OrderPage /></Layout>} />
-        <Route path="/products" element={<Layout><ProductPage /></Layout>} />
+        <Route path="/order" element={<Layout><OrderPage /></Layout>} />
+        <Route path="/order/:id" element={<Layout><OrderDetailPage /></Layout>} />
+        {/* <Route path="/products" element={<Layout><ProductPage /></Layout>} />
         <Route path="/workshop" element={<Layout><WorkshopPage /></Layout>} />
         <Route path="/blog" element={<Layout><BlogPage /></Layout>} /> */}
         
