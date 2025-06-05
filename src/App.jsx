@@ -6,6 +6,8 @@ import ManagePage from './components/manage/ManagePage';
 import OrderPage from './components/order/OrderPage'; // ✅ Kiểm tra đường dẫn
 import OrderDetailPage from './components/order/OrderDetailPage';
 import ProductPage from './components/products/ProductPage';
+import WorkshopPage from './components/workshop/WorkshopPage'
+import BlogPage from './components/blog/BlogPage';
 import './App.css';
 
 function App() {
@@ -20,8 +22,8 @@ function App() {
         <Route path="/order" element={<Layout><OrderPage /></Layout>} />
         <Route path="/order/:id" element={<Layout><OrderDetailPage /></Layout>} />
         <Route path="/products" element={<Layout><ProductPage /></Layout>} />
-        {/* <Route path="/workshop" element={<Layout><WorkshopPage /></Layout>} />
-        <Route path="/blog" element={<Layout><BlogPage /></Layout>} /> */}
+        <Route path="/workshop" element={<Layout><WorkshopPage /></Layout>} />
+        <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
         
         {/* Default route */}
         <Route path="/" element={<LoginPage />} />
