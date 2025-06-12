@@ -1,6 +1,6 @@
 import { Upload, Calendar } from "lucide-react";
-import { Button } from "../ui/button";
-import { Card, CardContent } from "../ui/Card";
+import { Button } from "../../components/ui/button/Button";
+import { Card, CardContent } from "../../components/ui/Card";
 import "./BlogPage.css"; // 👈 đổi tên file CSS
 
 const BlogPage = () => {

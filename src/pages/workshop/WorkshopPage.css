@@ -1,6 +1,6 @@
 /* ==== Base Layout ==== */
 .workshop-page {
-  background-color: #f9fafb;
+  background-color: #FFF8DC;
   min-height: 100vh;
 }
 
@@ -15,9 +15,9 @@
 }
 
 .workshop-page-title {
-  font-size: 2rem;
+  font-size: 28px;
   font-weight: bold;
-  color: #1f2937;
+  color: #8B4513;
   margin-bottom: 1.5rem;
 }
 

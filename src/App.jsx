@@ -1,13 +1,13 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import React from 'react';
-import LoginPage from './components/login/LoginPage';
+import LoginPage from './pages/login/LoginPage';
 import Layout from './components/layout/Layout';
-import ManagePage from './components/manage/ManagePage';
-import OrderPage from './components/order/OrderPage'; // ✅ Kiểm tra đường dẫn
-import OrderDetailPage from './components/order/OrderDetailPage';
-import ProductPage from './components/products/ProductPage';
-import WorkshopPage from './components/workshop/WorkshopPage'
-import BlogPage from './components/blog/BlogPage';
+import ManagePage from './pages/manage/ManagePage';
+import OrderPage from './pages/order/OrderPage'; // ✅ Kiểm tra đường dẫn
+import OrderDetailPage from './pages/order-detail/OrderDetailPage';
+import ProductPage from './pages/products/ProductPage';
+import WorkshopPage from './pages/workshop/WorkshopPage'
+import BlogPage from './pages/blog/BlogPage';
 import './App.css';
 
 function App() {

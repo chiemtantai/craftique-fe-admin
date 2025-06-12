@@ -82,9 +82,9 @@
 }
 
 .page-title {
-  font-size: 1.875rem;
+  font-size: 28px;
   font-weight: bold;
-  color: #1f2937;
+  color: #8B4513;
   margin-bottom: 2rem;
 }
 
@@ -101,7 +101,6 @@
 }
 
 .upload-layout {
-  display: flex;
   flex-direction: column;
   gap: 2rem;
 }
@@ -178,13 +177,13 @@
 
 
 .form-textarea {
-  width: 100%;
   padding: 0.5rem 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   outline: none;
   resize: vertical;
   transition: all 0.3s ease;
+  background-color: white;
 }
 
 .form-textarea:focus {

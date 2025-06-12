@@ -3,15 +3,15 @@ import "./button.css";
 
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
-  size?: "sm" | "md" | "lg"; // ✅ thêm size
-  variant?: "default" | "outline"; // ✅ thêm variant
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "outline" | "edit" | "delete"; // ✅ thêm edit và delete variant
 };
 
 export const Button: React.FC<ButtonProps> = ({
   children,
   className = "",
-  size = "md",        // ✅ default size
-  variant = "default", // ✅ default variant
+  size = "md",
+  variant = "default",
   ...props
 }) => {
   return (
