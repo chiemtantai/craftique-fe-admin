@@ -1,13 +1,28 @@
-
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import accountService from '../../services/accountService';
+import { Button } from '../ui/button/Button'
 import './Layout.css';
 
 function Layout({ children }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const [user, setUser] = useState(null);
   
-  
+  useEffect(() => {
+    // Kiểm tra trạng thái đăng nhập khi component mount
+    if (accountService.isAuthenticated()) {
+      setUser(accountService.getCurrentUser());
+    }
+  }, [location]); // Re-check khi location thay đổi
+
   const handleLoginClick = () => {
+    navigate('/login');
+  };
+
+  const handleLogout = () => {
+    accountService.logout();
+    setUser(null);
     navigate('/login');
   };
 
@@ -15,7 +30,6 @@ function Layout({ children }) {
     navigate(path);
   };
 
-  // Hàm kiểm tra active nav
   const isActiveNav = (path) => {
     return location.pathname === path;
   };
@@ -32,12 +46,20 @@ function Layout({ children }) {
         <div className="logo-container">
           <h1 onClick={() => handleNavClick('/')}>Craftique</h1>
         </div>
-        <div className="search-cart">
-          <div className="search-box">
-            <input type="text" placeholder="Tìm kiếm" />
-          </div>
-          <button className="cart-button"><i className="cart-icon">🛒</i></button>
-          <button className="login-nav-button" onClick={handleLoginClick}>Đăng nhập</button>
+        <div className="search-cart">        
+          {user ? (
+            <div className="user-info">
+              <span className="user-name">Xin chào, {user.name}</span>
+              <Button variant="logout" size="md" onClick={handleLogout}>
+                Đăng xuất
+              </Button>
+            </div>
+          ) : (
+            /* ✅ Sử dụng Button component cho login */
+            <Button variant="login" size="md" onClick={handleLoginClick}>
+              Đăng nhập
+            </Button>
+          )}
         </div>
       </header>
 
@@ -92,7 +114,7 @@ function Layout({ children }) {
         </ul>
       </nav>
 
-      {/* Main Content - sẽ render các component con */}
+      {/* Main Content */}
       <main className="main-content">
         {children}
       </main>

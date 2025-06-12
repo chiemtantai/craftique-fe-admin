@@ -4,7 +4,7 @@ import "./button.css";
 type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   children: React.ReactNode;
   size?: "sm" | "md" | "lg";
-  variant?: "default" | "outline" | "edit" | "delete"; // ✅ thêm edit và delete variant
+  variant?: "default" | "outline" | "edit" | "delete" | "login" | "logout" | "cart"; // ✅ thêm login, logout, cart variant
 };
 
 export const Button: React.FC<ButtonProps> = ({

@@ -6,12 +6,12 @@
 
 body {
   font-family: Arial, sans-serif;
-  background-color: #FFF8DC;
+  background-color: #fff8dc;
   line-height: 1.6;
 }
 
 .container {
-  background-color: #FFF8DC;
+  background-color: #fff8dc;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -19,20 +19,20 @@ body {
 
 /* Header Styles */
 .header {
-  background-color: #F5E6D3;
+  background-color: #f5e6d3;
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  border-bottom: 1px solid #DEB887;
+  border-bottom: 1px solid #deb887;
 }
 
 .contact-info {
   display: flex;
   gap: 20px;
   font-size: 14px;
-  color: #8B4513;
+  color: #8b4513;
 }
 
 .contact-info span {
@@ -40,7 +40,7 @@ body {
 }
 
 .logo-container h1 {
-  color: #8B4513;
+  color: #8b4513;
   margin: 0;
   font-size: 2em;
   font-weight: bold;
@@ -64,7 +64,7 @@ body {
   border-radius: 10px;
   overflow: hidden;
   background: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .search-box input {
@@ -81,7 +81,7 @@ body {
 
 .search-box button {
   border: none;
-  background: #8B4513;
+  background: #8b4513;
   color: white;
   padding: 8px 15px;
   cursor: pointer;
@@ -92,31 +92,24 @@ body {
   background: #654321;
 }
 
-.cart-button, .login-nav-button {
-  background: #8B4513;
-  color: white;
-  border: none;
-  padding: 8px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.3s ease;
-  min-width: 80px;
-  margin-right: 10px;
+/* User Info Styles */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.cart-button:hover, .login-nav-button:hover {
-  background: #654321;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+.user-name {
+  color: #8b4513;
+  font-weight: 500;
+  font-size: 14px;
 }
 
 /* Navigation Styles */
 .main-nav {
-  background-color: #DEB887;
+  background-color: #deb887;
   padding: 15px 0;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .main-nav ul {
@@ -134,7 +127,7 @@ body {
 
 .main-nav a {
   text-decoration: none;
-  color: #8B4513;
+  color: #8b4513;
   font-weight: bold;
   padding: 10px 15px;
   border-radius: 5px;
@@ -144,16 +137,16 @@ body {
 }
 
 .main-nav a:hover {
-  background-color: #8B4513;
+  background-color: #8b4513;
   color: white;
   transform: translateY(-1px);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .main-nav a.active {
-  background-color: #8B4513;
+  background-color: #8b4513;
   color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* Main Content Wrapper */
@@ -212,6 +205,16 @@ body {
   .main-content {
     padding: 0;
   }
+
+  .user-info {
+    flex-direction: column;
+    gap: 5px;
+    text-align: center;
+  }
+
+  .user-name {
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -222,12 +225,6 @@ body {
   .search-box input {
     width: 120px;
     padding: 6px 10px;
-  }
-
-  .cart-button, .login-nav-button {
-    padding: 6px 10px;
-    font-size: 12px;
-    min-width: 70px;
   }
 
   .main-nav ul {
