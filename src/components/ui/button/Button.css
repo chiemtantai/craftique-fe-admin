@@ -74,16 +74,16 @@
 
 /* ✅ Thêm variant cho nút Logout */
 .logout {
-  background-color: #dc3545;
+  background: linear-gradient(135deg, #9e256b 0%, #764ba2 100%);
   color: white;
-  border: 1px solid #dc3545;
+  border: 1px solid linear-gradient(135deg, #9e256b 0%, #764ba2 100%);
   min-width: 80px;
   margin-right: 20px;
   margin-left: 20px;
 }
 
 .logout:hover {
-  background-color: #c82333;
+  background-color: red;
   transform: translateY(-1px);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
