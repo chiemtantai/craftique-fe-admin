@@ -8,6 +8,7 @@ import OrderDetailPage from './pages/order-detail/OrderDetailPage';
 import ProductPage from './pages/products/ProductPage';
 import WorkshopPage from './pages/workshop/WorkshopPage'
 import BlogPage from './pages/blog/BlogPage';
+import BlogDetailPage from './pages/blog-detail/BlogDetailPage';
 import './App.css';
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route path="/products" element={<Layout><ProductPage /></Layout>} />
         <Route path="/workshop" element={<Layout><WorkshopPage /></Layout>} />
         <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
+        <Route path="/blog/:blogID" element={<Layout><BlogDetailPage /></Layout>} />
         
         {/* Default route */}
         <Route path="/" element={<LoginPage />} />

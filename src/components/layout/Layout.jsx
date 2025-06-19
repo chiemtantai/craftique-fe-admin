@@ -40,7 +40,6 @@ function Layout({ children }) {
       <header className="header">
         <div className="contact-info">
           <span>📞0987654321</span>
-          <span>📞0123456789</span>
           <span>📧Craftique2023@gmail.com</span>
         </div>
         <div className="logo-container">
