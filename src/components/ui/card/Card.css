@@ -23,6 +23,7 @@
 .card-content {
   padding: 1.5rem;
   display: block;
+  color: black;
 }
 
 .card-footer {

@@ -111,6 +111,7 @@
 
 .table-container {
   overflow-x: auto;
+  padding: 10px;
 }
 
 /* ==== Status Badges ==== */

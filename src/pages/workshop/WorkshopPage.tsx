@@ -1,7 +1,7 @@
 import { Mail, Phone, Calendar, User, Check, X } from "lucide-react";
 import { Button } from "../../components/ui/button/Button"; // ✅ dùng đường dẫn tương đối
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/Table";
+import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table/Table";
 import "./WorkshopPage.css";
 
 const WorkshopPage = () => {

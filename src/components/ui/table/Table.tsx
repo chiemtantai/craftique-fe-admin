@@ -1,5 +1,5 @@
 import React from "react";
-import "./table.css";
+import "./Table.css";
 
 export const Table: React.FC<React.TableHTMLAttributes<HTMLTableElement>> = ({
   children,
