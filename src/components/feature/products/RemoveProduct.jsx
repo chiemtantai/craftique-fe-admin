@@ -31,6 +31,7 @@ const RemoveProduct = {
       if (!productId) {
         throw new Error('Product ID không hợp lệ');
       }
+      
       const itemsResponse = await productItemService.getAll();
       let items = [];
       if (itemsResponse?.data?.items && Array.isArray(itemsResponse.data.items)) {
@@ -63,20 +64,32 @@ const RemoveProduct = {
   // Delete product item
   deleteProductItem: async (productItemId) => {
     try {
+      // Xóa tất cả hình ảnh liên quan trước khi xóa product item
       try {
-        const imagesResponse = await productImgService.getByProductItemId(productItemId);
-        const images = imagesResponse.data || [];
+        const imagesResponse = await productImgService.getAll();
+        const allImages = imagesResponse.data || [];
         
-        const deletePromises = images.map(image => 
-          productImgService.delete(image.productImgID)
+        // Lọc ra những hình ảnh thuộc về productItemId này
+        const imagesToDelete = allImages.filter(image => 
+          image.productItemID == productItemId
         );
-        await Promise.all(deletePromises);
+        
+        // Xóa từng hình ảnh (vì không có hàm delete, chúng ta sẽ bỏ qua bước này)
+        // Hoặc có thể thông báo cho user biết cần xóa thủ công
+        if (imagesToDelete.length > 0) {
+          console.warn(`Phát hiện ${imagesToDelete.length} hình ảnh liên quan đến product item ${productItemId}. Cần xóa thủ công hoặc thêm API xóa hình ảnh.`);
+        }
+        
       } catch (imageError) {
-        console.error('Error deleting images:', imageError);
+        console.error('Error checking images:', imageError);
+        // Không throw error ở đây để tiếp tục xóa product item
       }
 
       await productItemService.delete(productItemId);
-      return { success: true, message: 'Đã xóa biến thể sản phẩm thành công' };
+      return { 
+        success: true, 
+        message: 'Đã xóa biến thể sản phẩm thành công. Lưu ý: Hình ảnh liên quan cần được xóa thủ công.' 
+      };
     } catch (error) {
       console.error('Error deleting product item:', error);
       return { 
@@ -86,21 +99,6 @@ const RemoveProduct = {
     }
   },
 
-  // Delete image
-  deleteImage: async (imageId) => {
-    try {
-      await productImgService.delete(imageId);
-      return { success: true, message: 'Đã xóa hình ảnh thành công' };
-    } catch (error) {
-      console.error('Error deleting image:', error);
-      return { 
-        success: false, 
-        message: error.message || 'Có lỗi xảy ra khi xóa hình ảnh' 
-      };
-    }
-  },
-
-  // Generic delete function
   delete: async (type, id) => {
     switch (type) {
       case 'category':
@@ -109,8 +107,6 @@ const RemoveProduct = {
         return await RemoveProduct.deleteProduct(id);
       case 'productItem':
         return await RemoveProduct.deleteProductItem(id);
-      case 'image':
-        return await RemoveProduct.deleteImage(id);
       default:
         return { 
           success: false, 

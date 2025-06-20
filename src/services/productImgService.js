@@ -23,23 +23,5 @@ productImgAPI.interceptors.request.use(
 export const productImgService = {
   getAll: () => productImgAPI.get('/'),
   
-  create: (data) => productImgAPI.post('/', data),
-  
-  update: (id, data) => productImgAPI.put(`/${id}`, data),
-  
-  delete: (id) => productImgAPI.delete(`/${id}`),
-  
-  createSingle: (productItemId, imageUrl) => {
-    return productImgAPI.post('/', {
-      imageUrl: [imageUrl], 
-      productItemID: productItemId
-    });
-  },
-  
-  createMultiple: (productItemId, imageUrls) => {
-    return productImgAPI.post('/', {
-      imageUrl: imageUrls, 
-      productItemID: productItemId
-    });
-  }
+  create: (data) => productImgAPI.post('/', data)
 };

@@ -6,7 +6,14 @@ import { productService } from "../../../services/productService";
 import { productItemService } from "../../../services/productItemService";
 import { productImgService } from "../../../services/productImgService";
 
-const ProductList = ({ activeTab, onEdit, onDelete }) => {
+const ProductList = ({ 
+  activeTab, 
+  onEdit, 
+  onDelete, 
+  currentPage = 1, 
+  pageSize = 20, 
+  onPaginationData 
+}) => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
   const [productItems, setProductItems] = useState([]);
@@ -15,7 +22,7 @@ const ProductList = ({ activeTab, onEdit, onDelete }) => {
 
   useEffect(() => {
     fetchData();
-  }, [activeTab]);
+  }, [activeTab, currentPage]);
 
   const fetchData = async () => {
     setLoading(true);
@@ -54,6 +61,7 @@ const ProductList = ({ activeTab, onEdit, onDelete }) => {
       categoryService.getAll(),
       productItemService.getAll(),
     ]);
+    
     setProducts(productsRes.data || []);
     setCategories(categoriesRes.data || []);
     setProductItems(itemsRes.data?.items || itemsRes.data || []);
@@ -61,16 +69,51 @@ const ProductList = ({ activeTab, onEdit, onDelete }) => {
 
   const fetchProductItems = async () => {
     const [itemsRes, productsRes, categoriesRes] = await Promise.all([
-      productItemService.getAll(),
+      productItemService.getPaginated(currentPage, pageSize),
       productService.getAll(),
       categoryService.getAll(),
     ]);
 
-    const items = itemsRes.data?.items || [];
+    // Handle paginated response for product items
+    let items = [];
+    let paginationInfo = {};
     
+    if (itemsRes.data?.items) {
+      items = itemsRes.data.items;
+      paginationInfo = {
+        totalItems: itemsRes.data.totalItems,
+        totalPages: itemsRes.data.totalPages,
+        hasNextPage: itemsRes.data.hasNextPage,
+        hasPreviousPage: itemsRes.data.hasPreviousPage,
+      };
+    } else {
+      items = itemsRes.data || [];
+      paginationInfo = {
+        totalItems: items.length,
+        totalPages: 1,
+        hasNextPage: false,
+        hasPreviousPage: false,
+      };
+    }
+
+    // Send pagination info to parent
+    if (onPaginationData) {
+      onPaginationData(paginationInfo);
+    }
+
+    // Process images for each item
     const itemsWithImages = await Promise.all(
       items.map(async (item) => {
         try {
+          // Check if productImgs is already included in the response
+          if (item.productImgs && Array.isArray(item.productImgs)) {
+            return {
+              ...item,
+              images: item.productImgs.filter(img => !img.isDeleted),
+            };
+          }
+          
+          // Fallback to separate API call if images not included
           const imagesRes = await productImgService.getAll();
           const allImages = imagesRes.data || [];
           const itemImages = allImages.filter(
@@ -178,7 +221,7 @@ const ProductList = ({ activeTab, onEdit, onDelete }) => {
                   <h3 className="card-title">{product.name}</h3>
                   <p className="card-subtitle">{product.description}</p>
                   <p className="card-meta">
-                    Danh mục: {getCategoryName(product.categoryID)}
+                    Danh mục: {product.categoryName || getCategoryName(product.categoryID)}
                   </p>
                   <p className="card-meta">
                     Số biến thể:{" "}
@@ -229,7 +272,7 @@ const ProductList = ({ activeTab, onEdit, onDelete }) => {
                 <div className="variant-info">
                   <h3 className="variant-title">{item.name}</h3>
                   <p className="variant-color">
-                    Sản phẩm: {getProductName(item.productID)}
+                    Sản phẩm: {item.product?.name || getProductName(item.productID)}
                   </p>
                   <p className="variant-price">
                     {item.price ? item.price.toLocaleString() : "0"}₫
@@ -240,6 +283,15 @@ const ProductList = ({ activeTab, onEdit, onDelete }) => {
                   <p className="variant-meta">
                     Hình ảnh: {item.images ? item.images.length : 0}
                   </p>
+                  {item.productItemAttributes && item.productItemAttributes.length > 0 && (
+                    <div className="variant-attributes">
+                      {item.productItemAttributes.map((attr, index) => (
+                        <span key={index} className="attribute-tag">
+                          {attr.attributeName}: {attr.value}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 <div className="variant-actions">
                   <Button

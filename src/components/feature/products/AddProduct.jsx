@@ -3,13 +3,13 @@ import { X } from 'lucide-react';
 import { categoryService } from '../../../services/categoryService'
 import { productService } from '../../../services/productService';
 import { productItemService } from '../../../services/productItemService';
-import { productImgService } from '../../../services/productImgService';
 import ProductImg from './ProductImg'
 
 const AddProduct = ({ isOpen, onClose, type, onSuccess, editData }) => {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
-  const [images, setImages] = useState([]);
+  const [imageData, setImageData] = useState([]); // For new product items
+  const [imageEditData, setImageEditData] = useState({ updatedProductImgs: [], removeImageIds: [] }); // For editing
   const [loading, setLoading] = useState(false);
   
   // Form states
@@ -21,8 +21,7 @@ const AddProduct = ({ isOpen, onClose, type, onSuccess, editData }) => {
   const [productForm, setProductForm] = useState({
     categoryID: '',
     name: '',
-    description: '',
-    displayIndex: 0
+    description: ''
   });
 
   const [productItemForm, setProductItemForm] = useState({
@@ -30,9 +29,7 @@ const AddProduct = ({ isOpen, onClose, type, onSuccess, editData }) => {
     name: '',
     description: '',
     quantity: 0,
-    displayIndex: 0,
-    price: 0,
-    imageUrls: []
+    price: 0
   });
 
   useEffect(() => {
@@ -69,8 +66,7 @@ const AddProduct = ({ isOpen, onClose, type, onSuccess, editData }) => {
       setProductForm({
         categoryID: editData.categoryID || '',
         name: editData.name || '',
-        description: editData.description || '',
-        displayIndex: editData.displayIndex || 0
+        description: editData.description || ''
       });
     } else if (type === 'productItem' && editData) {
       setProductItemForm({
@@ -78,21 +74,23 @@ const AddProduct = ({ isOpen, onClose, type, onSuccess, editData }) => {
         name: editData.name || '',
         description: editData.description || '',
         quantity: editData.quantity || 0,
-        displayIndex: editData.displayIndex || 0,
-        price: editData.price || 0,
-        imageUrls: editData.imageUrls || []
+        price: editData.price || 0
       });
+      
+      // Initialize image edit data
+      setImageEditData({ updatedProductImgs: [], removeImageIds: [] });
     }
   };
 
   const resetForms = () => {
     setCategoryForm({ name: '', description: '' });
-    setProductForm({ categoryID: '', name: '', description: '', displayIndex: 0 });
+    setProductForm({ categoryID: '', name: '', description: '' });
     setProductItemForm({ 
       productID: '', name: '', description: '', 
-      quantity: 0, displayIndex: 0, price: 0, imageUrls: [] 
+      quantity: 0, price: 0
     });
-    setImages([]);
+    setImageData([]);
+    setImageEditData({ updatedProductImgs: [], removeImageIds: [] });
   };
 
   const handleClose = () => {
@@ -159,32 +157,42 @@ const AddProduct = ({ isOpen, onClose, type, onSuccess, editData }) => {
       return;
     }
 
-    const data = {
-      ...productItemForm,
-      productID: parseInt(productItemForm.productID),
-      quantity: parseInt(productItemForm.quantity),
-      price: parseFloat(productItemForm.price),
-      displayIndex: parseInt(productItemForm.displayIndex),
-      imageUrls: images.map(img => img.imageUrl)
-    };
-
     if (editData) {
+      // Edit mode - use edit data structure
+      const data = {
+        productID: parseInt(productItemForm.productID),
+        name: productItemForm.name,
+        description: productItemForm.description,
+        quantity: parseInt(productItemForm.quantity),
+        price: parseFloat(productItemForm.price),
+        updatedProductImgs: imageEditData.updatedProductImgs,
+        removeImageIds: imageEditData.removeImageIds
+      };
+
       await productItemService.update(editData.productItemID, data);
     } else {
-      const response = await productItemService.create(data);
-      
-      // Create images if product item was created successfully
-      if (response.data && images.length > 0) {
-        await productImgService.createMultiple(
-          response.data.productItemID,
-          images.map(img => img.imageUrl)
-        );
-      }
+      // Create mode - use create data structure
+      const data = {
+        productID: parseInt(productItemForm.productID),
+        name: productItemForm.name,
+        description: productItemForm.description,
+        quantity: parseInt(productItemForm.quantity),
+        price: parseFloat(productItemForm.price),
+        imageUrls: imageData // This should be array of strings
+      };
+
+      await productItemService.create(data);
     }
   };
 
-  const handleImagesChange = (newImages) => {
-    setImages(newImages);
+  const handleImagesChange = (newImageData) => {
+    if (editData) {
+      // For editing, expect object with updatedProductImgs and removeImageIds
+      setImageEditData(newImageData);
+    } else {
+      // For new items, expect array of image URLs
+      setImageData(newImageData);
+    }
   };
 
   if (!isOpen) return null;
@@ -267,16 +275,6 @@ const AddProduct = ({ isOpen, onClose, type, onSuccess, editData }) => {
                   rows="3"
                 />
               </div>
-              <div className="form-field">
-                <label className="form-label">Thứ tự hiển thị</label>
-                <input
-                  type="number"
-                  value={productForm.displayIndex}
-                  onChange={(e) => setProductForm({...productForm, displayIndex: e.target.value})}
-                  className="form-input"
-                  min="0"
-                />
-              </div>
             </div>
           )}
 
@@ -341,24 +339,15 @@ const AddProduct = ({ isOpen, onClose, type, onSuccess, editData }) => {
                   />
                 </div>
               </div>
-              <div className="form-field">
-                <label className="form-label">Thứ tự hiển thị</label>
-                <input
-                  type="number"
-                  value={productItemForm.displayIndex}
-                  onChange={(e) => setProductItemForm({...productItemForm, displayIndex: e.target.value})}
-                  className="form-input"
-                  min="0"
-                />
-              </div>
               
               {/* Product Images Component */}
               <div className="form-field">
                 <label className="form-label">Hình ảnh sản phẩm</label>
                 <ProductImg
-                  images={images}
+                  images={editData ? [] : imageData} // For new items, pass current imageData
                   onImagesChange={handleImagesChange}
                   productItemId={editData?.productItemID}
+                  isEditing={!!editData} // Pass editing mode flag
                 />
               </div>
             </div>

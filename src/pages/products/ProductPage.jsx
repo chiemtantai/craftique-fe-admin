@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Package, Grid, Layers } from 'lucide-react';
+import { Plus, Package, Grid, Layers, ChevronLeft, ChevronRight } from 'lucide-react';
 import ProductList from '../../components/feature/products/ProductList'
 import AddProduct from '../../components/feature/products/AddProduct';
 import RemoveProduct from '../../components/feature/products/RemoveProduct';
@@ -11,12 +11,28 @@ const ProductPage = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [editData, setEditData] = useState(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  
+  // Pagination states for ProductItems only
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(20);
+  const [totalItems, setTotalItems] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
+  const [hasNextPage, setHasNextPage] = useState(false);
+  const [hasPreviousPage, setHasPreviousPage] = useState(false);
 
   const tabs = [
     { id: 'categories', label: 'Danh mục', icon: Layers },
     { id: 'products', label: 'Sản phẩm chính', icon: Package },
     { id: 'productItems', label: 'Biến thể sản phẩm', icon: Grid }
   ];
+
+  // Reset pagination when switching tabs
+  const handleTabChange = (tabId) => {
+    setActiveTab(tabId);
+    if (tabId === 'productItems') {
+      setCurrentPage(1);
+    }
+  };
 
   const handleAddNew = () => {
     setEditData(null);
@@ -50,6 +66,109 @@ const ProductPage = () => {
 
   const triggerRefresh = () => {
     setRefreshTrigger(prev => prev + 1);
+  };
+
+  // Pagination handlers
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handlePaginationData = (paginationInfo) => {
+    setTotalItems(paginationInfo.totalItems);
+    setTotalPages(paginationInfo.totalPages);
+    setHasNextPage(paginationInfo.hasNextPage);
+    setHasPreviousPage(paginationInfo.hasPreviousPage);
+  };
+
+  const renderPagination = () => {
+    if (activeTab !== 'productItems' || totalPages <= 1) return null;
+
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    // Adjust start page if we're near the end
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pageNumbers.push(i);
+    }
+
+    return (
+      <div className="pagination-container">
+        <div className="pagination-info">
+          Hiển thị {Math.min((currentPage - 1) * pageSize + 1, totalItems)} - {Math.min(currentPage * pageSize, totalItems)} của {totalItems} kết quả
+        </div>
+        <div className="pagination-controls">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={!hasPreviousPage}
+            className="pagination-button"
+          >
+            <ChevronLeft size={16} />
+            Trước
+          </Button>
+          
+          {startPage > 1 && (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(1)}
+                className="pagination-number"
+              >
+                1
+              </Button>
+              {startPage > 2 && <span className="pagination-ellipsis">...</span>}
+            </>
+          )}
+          
+          {pageNumbers.map(page => (
+            <Button
+              key={page}
+              variant={page === currentPage ? "primary" : "outline"}
+              size="sm"
+              onClick={() => handlePageChange(page)}
+              className="pagination-number"
+            >
+              {page}
+            </Button>
+          ))}
+          
+          {endPage < totalPages && (
+            <>
+              {endPage < totalPages - 1 && <span className="pagination-ellipsis">...</span>}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(totalPages)}
+                className="pagination-number"
+              >
+                {totalPages}
+              </Button>
+            </>
+          )}
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={!hasNextPage}
+            className="pagination-button"
+          >
+            Sau
+            <ChevronRight size={16} />
+          </Button>
+        </div>
+      </div>
+    );
   };
 
   const getTabTitle = () => {
@@ -99,7 +218,7 @@ const ProductPage = () => {
               <button
                 key={tab.id}
                 className={`tab ${activeTab === tab.id ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabChange(tab.id)}
               >
                 <IconComponent size={18} />
                 <span>{tab.label}</span>
@@ -115,7 +234,13 @@ const ProductPage = () => {
           activeTab={activeTab}
           onEdit={handleEdit}
           onDelete={handleDelete}
+          // Pagination props for ProductItems only
+          currentPage={activeTab === 'productItems' ? currentPage : 1}
+          pageSize={pageSize}
+          onPaginationData={handlePaginationData}
         />
+        
+        {renderPagination()}
       </div>
 
       <AddProduct

@@ -22,8 +22,18 @@ productItemAPI.interceptors.request.use(
 
 export const productItemService = {
   getAll: () => productItemAPI.get('/'),
+  
+  getPaginated: (pageNumber = 1, pageSize = 10, searchTerm = '') => {
+    const params = { pageNumber, pageSize };
+    if (searchTerm) params.searchTerm = searchTerm;
+    return productItemAPI.get('/', { params });
+  },
+  
   getById: (id) => productItemAPI.get(`/${id}`),
+  
   create: (data) => productItemAPI.post('/', data),
+  
   update: (id, data) => productItemAPI.put(`/${id}`, data),
+  
   delete: (id) => productItemAPI.delete(`/${id}`),
 };

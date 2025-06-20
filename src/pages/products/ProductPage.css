@@ -555,6 +555,18 @@
   transform: scale(1.1);
 }
 
+.empty-images {
+  color: black;
+}
+
+.add-image-btn {
+  background: linear-gradient(135deg, #deec1a 0%, #28b9d3 100%);
+}
+
+.add-image-item {
+  text-align: left;
+}
+
 /* === STATUS INDICATORS === */
 .status-badge {
   display: inline-flex;
@@ -689,5 +701,132 @@
   .card-content {
     flex-direction: column;
     align-items: stretch;
+  }
+}
+
+/* Pagination Styles */
+.pagination-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  margin-top: 32px;
+  padding: 20px 0;
+  border-top: 1px solid #e5e7eb;
+}
+
+.pagination-info {
+  color: #6b7280;
+  font-size: 14px;
+  text-align: center;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pagination-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-button:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-number {
+  min-width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1d5db;
+  background: white;
+  color: #374151;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pagination-number:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.pagination-number[data-variant="primary"] {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
+}
+
+.pagination-number[data-variant="primary"]:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.pagination-ellipsis {
+  padding: 0 8px;
+  color: #9ca3af;
+  font-size: 14px;
+}
+
+/* Variant attributes styling */
+.variant-attributes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 8px;
+}
+
+.attribute-tag {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+  .pagination-container {
+    margin-top: 20px;
+    padding: 16px 0;
+  }
+  
+  .pagination-controls {
+    gap: 4px;
+  }
+  
+  .pagination-button,
+  .pagination-number {
+    min-width: 36px;
+    height: 36px;
+    font-size: 13px;
+    padding: 6px 10px;
+  }
+  
+  .pagination-info {
+    font-size: 13px;
   }
 }

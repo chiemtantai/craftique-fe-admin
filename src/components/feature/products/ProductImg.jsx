@@ -2,35 +2,58 @@ import React, { useState, useEffect } from "react";
 import { Plus, X, Image as ImageIcon } from "lucide-react";
 import { productImgService } from "../../../services/productImgService";
 
-const ProductImg = ({ images = [], onImagesChange, productItemId }) => {
+const ProductImg = ({ images = [], onImagesChange, productItemId, isEditing = false }) => {
   const [localImages, setLocalImages] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [newImageUrl, setNewImageUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (productItemId) {
+    if (productItemId && isEditing) {
       fetchImages();
     } else {
-      setLocalImages(images);
+      // For new product items, use passed images
+      setLocalImages(images.map((img, index) => ({
+        imageUrl: typeof img === 'string' ? img : img.imageUrl,
+        productImgID: img.productImgID || `temp_${index}`,
+        isTemp: !img.productImgID // Mark as temporary for new items
+      })));
     }
-  }, [productItemId, images]);
+  }, [productItemId, images, isEditing]);
 
   const fetchImages = async () => {
     try {
       const response = await productImgService.getAll();
       const allImages = response.data || [];
 
-      // Filter images for this productItemId and exclude deleted ones
+      // Filter images for this productItemId
       const filteredImages = allImages.filter(
         (img) => img.productItemID === productItemId && !img.isDeleted
       );
 
       setLocalImages(filteredImages);
-      onImagesChange(filteredImages);
+      notifyParent(filteredImages, []);
     } catch (error) {
       console.error("Error fetching images:", error);
       setLocalImages([]);
+    }
+  };
+
+  const notifyParent = (currentImages) => {
+    if (isEditing) {
+      // For editing mode, return format expected by edit API
+      const updatedProductImgs = currentImages.map(img => ({
+        imageUrl: img.imageUrl,
+        productImgID: img.productImgID
+      }));
+      
+      onImagesChange({
+        updatedProductImgs,
+      });
+    } else {
+      // For new product items, just return array of image URLs
+      const imageUrls = currentImages.map(img => img.imageUrl);
+      onImagesChange(imageUrls);
     }
   };
 
@@ -51,35 +74,28 @@ const ProductImg = ({ images = [], onImagesChange, productItemId }) => {
     setLoading(true);
 
     try {
-      if (productItemId) {
-        // If we have productItemId, create the image via API with correct structure
-        const response = await productImgService.createSingle(
-          productItemId,
-          newImageUrl.trim()
-        );
-
-        // Backend might return different structure, handle accordingly
-        let createdImage;
-        if (Array.isArray(response.data)) {
-          createdImage = response.data[0]; // If backend returns array
-        } else {
-          createdImage = response.data; // If backend returns single object
-        }
-
-        const updatedImages = [...localImages, createdImage];
-        setLocalImages(updatedImages);
-        onImagesChange(updatedImages);
+      if (productItemId && isEditing) {
+        // If editing existing product item, create image via API
+        const imageData = {
+          imageUrl: [newImageUrl.trim()],
+          productItemID: productItemId
+        };
+        
+        const response = await productImgService.create(imageData);
+        notifyParent(response);
+        // Handle response - refresh images from server
+        await fetchImages();
       } else {
-        // If no productItemId (adding new product), just add to local state
+        // If adding new product item, just add to local state
         const tempImage = {
           imageUrl: newImageUrl.trim(),
-          productItemID: productItemId,
-          productImgID: Date.now(), // temporary ID
-          isDeleted: false,
+          productImgID: `temp_${Date.now()}`,
+          isTemp: true
         };
+        
         const updatedImages = [...localImages, tempImage];
         setLocalImages(updatedImages);
-        onImagesChange(updatedImages);
+        notifyParent(updatedImages);
       }
 
       setNewImageUrl("");
@@ -89,23 +105,6 @@ const ProductImg = ({ images = [], onImagesChange, productItemId }) => {
       alert("Có lỗi xảy ra khi thêm hình ảnh");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleRemoveImage = async (imageId, index) => {
-    try {
-      if (productItemId && imageId) {
-        // If we have productItemId and imageId, delete via API
-        await productImgService.delete(imageId);
-      }
-
-      // Remove from local state
-      const updatedImages = localImages.filter((_, i) => i !== index);
-      setLocalImages(updatedImages);
-      onImagesChange(updatedImages);
-    } catch (error) {
-      console.error("Error removing image:", error);
-      alert("Có lỗi xảy ra khi xóa hình ảnh");
     }
   };
 
@@ -132,13 +131,7 @@ const ProductImg = ({ images = [], onImagesChange, productItemId }) => {
                     "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZGRkIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzk5OSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkVycm9yIExvYWRpbmc8L3RleHQ+PC9zdmc+";
                 }}
               />
-              <button
-                className="remove-image-btn"
-                onClick={() => handleRemoveImage(image.productImgID, index)}
-                title="Xóa hình ảnh"
-              >
-                <X size={16} />
-              </button>
+             
             </div>
           </div>
         ))}
@@ -150,7 +143,6 @@ const ProductImg = ({ images = [], onImagesChange, productItemId }) => {
             title="Thêm hình ảnh"
           >
             <Plus size={24} />
-            <span>Thêm hình ảnh</span>
           </button>
         </div>
       </div>
@@ -159,7 +151,7 @@ const ProductImg = ({ images = [], onImagesChange, productItemId }) => {
         <div className="empty-images">
           <ImageIcon size={48} className="empty-icon" />
           <p>Chưa có hình ảnh nào</p>
-          <p className="empty-subtitle">Nhấn "Thêm hình ảnh" để bắt đầu</p>
+          <p className="empty-subtitle">Nhấn "+" để thêm ảnh</p>
         </div>
       )}
 
