@@ -46,7 +46,7 @@
 }
 
 .update-status-btn {
-  background: #007bff;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   padding: 10px 20px;
@@ -56,7 +56,7 @@
 }
 
 .update-status-btn:hover {
-  background: #0056b3;
+  background: linear-gradient(135deg, #cc098b 0%, #30035c 100%);
 }
 
 /* Content */

@@ -11,7 +11,7 @@ const ProductList = ({
   onEdit, 
   onDelete, 
   currentPage = 1, 
-  pageSize = 20, 
+  pageSize = 10, 
   onPaginationData 
 }) => {
   const [categories, setCategories] = useState([]);
