@@ -1,15 +1,36 @@
 import { useState, useEffect } from "react";
 import { Mail, Phone, Calendar, User, Check, X } from "lucide-react";
 import { Button } from "../../components/ui/button/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/card/Card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "../../components/ui/table/Table";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/ui/card/Card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table/Table";
 import { useWorkshopList } from "../../components/feature/workshops/workshopList";
 import { useSendEmail } from "../../components/feature/workshops/SendEmail";
 import { useConfirmEmail } from "../../components/feature/workshops/ConfirmEmail";
+import { useRejectEmail } from "../../components/feature/workshops/RejectEmail";
 import "./WorkshopPage.css";
 
 // Email Modal Component
-const EmailModal = ({ isOpen, onClose, onSend, registration, defaultSubject, defaultBody, loading }) => {
+const EmailModal = ({
+  isOpen,
+  onClose,
+  onSend,
+  registration,
+  defaultSubject,
+  defaultBody,
+  loading,
+}) => {
   const [subject, setSubject] = useState(defaultSubject || "");
   const [body, setBody] = useState(defaultBody || "");
 
@@ -49,7 +70,7 @@ const EmailModal = ({ isOpen, onClose, onSend, registration, defaultSubject, def
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
             <label htmlFor="subject">Tiêu đề email:</label>
@@ -63,7 +84,7 @@ const EmailModal = ({ isOpen, onClose, onSend, registration, defaultSubject, def
               className="form-input"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="body">Nội dung email:</label>
             <textarea
@@ -76,7 +97,7 @@ const EmailModal = ({ isOpen, onClose, onSend, registration, defaultSubject, def
               className="form-textarea"
             />
           </div>
-          
+
           <div className="modal-actions">
             <Button type="button" variant="outline" onClick={handleClose}>
               Hủy
@@ -91,8 +112,67 @@ const EmailModal = ({ isOpen, onClose, onSend, registration, defaultSubject, def
   );
 };
 
+const RejectModal = ({ isOpen, onClose, onReject, registration, loading }) => {
+  const [reason, setReason] = useState("");
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onReject(reason);
+  };
+
+  const handleClose = () => {
+    setReason("");
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h3>Từ chối đăng ký của {registration?.fullName}</h3>
+          <button onClick={handleClose} className="modal-close-btn">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="modal-form">
+          <div className="form-group">
+            <label htmlFor="reason">Lý do từ chối:</label>
+            <textarea
+              id="reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              placeholder="Nhập lý do từ chối đăng ký"
+              required
+              rows={4}
+              className="form-textarea"
+            />
+          </div>
+          
+          <div className="modal-actions">
+            <Button type="button" variant="outline" onClick={handleClose}>
+              Hủy
+            </Button>
+            <Button type="submit" disabled={loading} className="reject-btn">
+              {loading ? "Đang xử lý..." : "Từ chối"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
 // Bulk Email Modal Component
-const BulkEmailModal = ({ isOpen, onClose, onSend, confirmedCount, loading }) => {
+const BulkEmailModal = ({
+  isOpen,
+  onClose,
+  onSend,
+  confirmedCount,
+  loading,
+}) => {
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
 
@@ -100,9 +180,12 @@ const BulkEmailModal = ({ isOpen, onClose, onSend, confirmedCount, loading }) =>
   useEffect(() => {
     if (isOpen) {
       setSubject("Thông báo Workshop");
-      setBody("Xin chào,\n\nChúng tôi xin thông báo về workshop sắp tới.\n\nTrân trọng,\nBan tổ chức");
+      setBody(
+        "Xin chào,\n\nChúng tôi xin thông báo về workshop sắp tới.\n\nTrân trọng,\nBan tổ chức"
+      );
     }
   }, [isOpen]);
+
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -127,7 +210,7 @@ const BulkEmailModal = ({ isOpen, onClose, onSend, confirmedCount, loading }) =>
             <X className="w-5 h-5" />
           </button>
         </div>
-        
+
         <form onSubmit={handleSubmit} className="modal-form">
           <div className="form-group">
             <label htmlFor="bulk-subject">Tiêu đề email:</label>
@@ -141,7 +224,7 @@ const BulkEmailModal = ({ isOpen, onClose, onSend, confirmedCount, loading }) =>
               className="form-input"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="bulk-body">Nội dung email:</label>
             <textarea
@@ -154,13 +237,15 @@ const BulkEmailModal = ({ isOpen, onClose, onSend, confirmedCount, loading }) =>
               className="form-textarea"
             />
           </div>
-          
+
           <div className="modal-actions">
             <Button type="button" variant="outline" onClick={handleClose}>
               Hủy
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "Đang gửi..." : `Gửi email cho ${confirmedCount} người`}
+              {loading
+                ? "Đang gửi..."
+                : `Gửi email cho ${confirmedCount} người`}
             </Button>
           </div>
         </form>
@@ -171,27 +256,45 @@ const BulkEmailModal = ({ isOpen, onClose, onSend, confirmedCount, loading }) =>
 
 const WorkshopPage = () => {
   const { workshops, loading, error, refreshData } = useWorkshopList();
-  const { sendSingleEmail, sendBulkEmail, loading: emailLoading } = useSendEmail();
+  const {
+    sendSingleEmail,
+    sendBulkEmail,
+    loading: emailLoading,
+  } = useSendEmail();
   const { confirmRegistration, loading: confirmLoading } = useConfirmEmail();
-  
+  const { rejectRegistration, loading: rejectLoading } = useRejectEmail();
+
   // Modal states
-  const [emailModal, setEmailModal] = useState({ isOpen: false, registration: null });
+  const [emailModal, setEmailModal] = useState({
+    isOpen: false,
+    registration: null,
+  });
+
   const [bulkEmailModal, setBulkEmailModal] = useState(false);
+
+  const [rejectModal, setRejectModal] = useState({
+    isOpen: false,
+    registration: null,
+  });
 
   const handleSendEmail = (registration) => {
     const defaultSubject = "Thông báo về Workshop";
     const defaultBody = `Xin chào ${registration.fullName},\n\nCảm ơn bạn đã đăng ký tham gia ${registration.workshopName}.\n\nTrân trọng,\nĐội ngũ Craftique`;
-    
+
     setEmailModal({
       isOpen: true,
       registration,
       defaultSubject,
-      defaultBody
+      defaultBody,
     });
   };
 
   const handleSendSingleEmail = async (subject, body) => {
-    const result = await sendSingleEmail(emailModal.registration.id, subject, body);
+    const result = await sendSingleEmail(
+      emailModal.registration.id,
+      subject,
+      body
+    );
     alert(result.message);
     if (result.success) {
       setEmailModal({ isOpen: false, registration: null });
@@ -199,8 +302,10 @@ const WorkshopPage = () => {
   };
 
   const handleOpenBulkEmail = () => {
-    const confirmedCount = workshops.filter(w => w.status === "ĐÃ XÁC NHẬN").length;
-    
+    const confirmedCount = workshops.filter(
+      (w) => w.status === "ĐÃ XÁC NHẬN"
+    ).length;
+
     if (confirmedCount === 0) {
       alert("Không có người đăng ký nào được xác nhận để gửi email!");
       return;
@@ -211,9 +316,9 @@ const WorkshopPage = () => {
 
   const handleSendBulkEmail = async (subject, body) => {
     const confirmedIds = workshops
-      .filter(w => w.status === "ĐÃ XÁC NHẬN")
-      .map(w => w.id);
-    
+      .filter((w) => w.status === "ĐÃ XÁC NHẬN")
+      .map((w) => w.id);
+
     const result = await sendBulkEmail(confirmedIds, subject, body);
     alert(result.message);
     if (result.success) {
@@ -229,26 +334,54 @@ const WorkshopPage = () => {
     }
   };
 
+  const handleReject = (registration) => {
+    setRejectModal({ isOpen: true, registration });
+  };
+
+  const handleConfirmReject = async (reason) => {
+    const result = await rejectRegistration(
+      rejectModal.registration.id,
+      reason
+    );
+    alert(result.message);
+    if (result.success) {
+      setRejectModal({ isOpen: false, registration: null });
+      refreshData();
+    }
+  };
+
   const getStatusBadge = (status) => {
     const statusConfig = {
       "ĐÃ XÁC NHẬN": { text: "Đã xác nhận", class: "status-confirmed" },
       "CHỜ XÁC NHẬN": { text: "Chờ xác nhận", class: "status-pending" },
-      "ĐÃ HỦY": { text: "Đã hủy", class: "status-cancelled" }
+      "ĐÃ HỦY": { text: "Đã hủy", class: "status-cancelled" },
     };
 
     const config = statusConfig[status] || statusConfig["CHỜ XÁC NHẬN"];
-    return <span className={`status-badge ${config.class}`}>{config.text}</span>;
+    return (
+      <span className={`status-badge ${config.class}`}>{config.text}</span>
+    );
   };
 
   const stats = {
     total: workshops.length,
-    confirmed: workshops.filter(r => r.status === "ĐÃ XÁC NHẬN").length,
-    pending: workshops.filter(r => r.status === "CHỜ XÁC NHẬN").length,
-    cancelled: workshops.filter(r => r.status === "ĐÃ HỦY").length
+    confirmed: workshops.filter((r) => r.status === "ĐÃ XÁC NHẬN").length,
+    pending: workshops.filter((r) => r.status === "CHỜ XÁC NHẬN").length,
+    cancelled: workshops.filter((r) => r.status === "ĐÃ HỦY").length,
   };
 
-  if (loading) return <div className="workshop-page"><div className="workshop-main-container">Đang tải...</div></div>;
-  if (error) return <div className="workshop-page"><div className="workshop-main-container">Lỗi: {error}</div></div>;
+  if (loading)
+    return (
+      <div className="workshop-page">
+        <div className="workshop-main-container">Đang tải...</div>
+      </div>
+    );
+  if (error)
+    return (
+      <div className="workshop-page">
+        <div className="workshop-main-container">Lỗi: {error}</div>
+      </div>
+    );
 
   return (
     <div className="workshop-page">
@@ -300,8 +433,8 @@ const WorkshopPage = () => {
         </div>
 
         <div className="actions-section">
-          <Button 
-            onClick={handleOpenBulkEmail} 
+          <Button
+            onClick={handleOpenBulkEmail}
             className="bulk-email-button"
             disabled={emailLoading}
           >
@@ -333,14 +466,20 @@ const WorkshopPage = () => {
                   {workshops.map((registration, index) => (
                     <TableRow key={registration.id}>
                       <TableCell>{index + 1}</TableCell>
-                      <TableCell className="font-medium">{registration.fullName}</TableCell>
+                      <TableCell className="font-medium">
+                        {registration.fullName}
+                      </TableCell>
                       <TableCell>{registration.email}</TableCell>
                       <TableCell>{registration.phoneNumber}</TableCell>
                       <TableCell>{registration.workshopName}</TableCell>
                       <TableCell>
-                        {new Date(registration.registeredDate).toLocaleDateString('vi-VN')}
+                        {new Date(
+                          registration.registeredDate
+                        ).toLocaleDateString("vi-VN")}
                       </TableCell>
-                      <TableCell>{getStatusBadge(registration.status)}</TableCell>
+                      <TableCell>
+                        {getStatusBadge(registration.status)}
+                      </TableCell>
                       <TableCell>
                         <div className="action-buttons">
                           <Button
@@ -354,16 +493,29 @@ const WorkshopPage = () => {
                             Gửi mail
                           </Button>
                           {registration.status === "CHỜ XÁC NHẬN" && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleConfirm(registration.id)}
-                              disabled={confirmLoading}
-                              style={{ marginLeft: '0.5rem' }}
-                            >
-                              <Check className="w-3 h-3 mr-1" />
-                              Xác nhận
-                            </Button>
+                            <>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleConfirm(registration.id)}
+                                disabled={confirmLoading}
+                                style={{ marginLeft: "0.5rem" }}
+                              >
+                                <Check className="w-3 h-3 mr-1" />
+                                Xác nhận
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handleReject(registration)}
+                                disabled={rejectLoading}
+                                className="reject-btn"
+                                style={{ marginLeft: "0.5rem" }}
+                              >
+                                <X className="w-3 h-3 mr-1" />
+                                Từ chối
+                              </Button>
+                            </>
                           )}
                         </div>
                       </TableCell>
@@ -393,6 +545,14 @@ const WorkshopPage = () => {
         onSend={handleSendBulkEmail}
         confirmedCount={stats.confirmed}
         loading={emailLoading}
+      />
+
+      <RejectModal
+        isOpen={rejectModal.isOpen}
+        onClose={() => setRejectModal({ isOpen: false, registration: null })}
+        onReject={handleConfirmReject}
+        registration={rejectModal.registration}
+        loading={rejectLoading}
       />
     </div>
   );
