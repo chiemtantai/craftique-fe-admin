@@ -36,6 +36,7 @@
   border: none;
   border-radius: 12px;
   padding: 12px 24px;
+  margin-left: 50px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s ease;
@@ -334,16 +335,10 @@
 .modal {
   background: white;
   border-radius: 16px;
-  width: 90%;
-  max-width: 600px;
-  max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
-.small-modal {
-  max-width: 400px;
-}
 
 .modal-header {
   display: flex;
@@ -378,7 +373,6 @@
 
 .modal-content {
   padding: 24px;
-  max-height: 60vh;
   overflow-y: auto;
   background-color: #FFF8DC;
 }

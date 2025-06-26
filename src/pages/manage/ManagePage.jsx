@@ -15,51 +15,71 @@ const ManagePage = () => {
     error: null
   });
 
+  // Filter states
+  const [productFilter, setProductFilter] = useState({
+    year: '',
+    month: '',
+    day: '',
+    top: ''
+  });
+
+  const [customerFilter, setCustomerFilter] = useState({
+    year: '',
+    month: '',
+    day: '',
+    top: ''
+  });
+
   // Fetch data from APIs
+  const fetchDashboardData = async () => {
+    try {
+      setDashboardData(prev => ({ ...prev, loading: true, error: null }));
+
+      const [
+        totalUsersRes,
+        totalRevenueRes,
+        totalProductsRes,
+        topProductsRes,
+        topCustomersRes
+      ] = await Promise.all([
+        manageService.getTotalUsers(),
+        manageService.getTotalRevenue(),
+        manageService.getTotalProducts(),
+        manageService.getTopSellingProductItems(productFilter),
+        manageService.getTopCustomers(customerFilter)
+      ]);
+
+      setDashboardData({
+        totalUsers: totalUsersRes.data || 0,
+        totalRevenue: totalRevenueRes.data.totalRevenue || 0,
+        totalProducts: totalProductsRes.data.totalCount || 0,
+        topProducts: topProductsRes.data.topProductItems || [],
+        topCustomers: topCustomersRes.data.topCustomers || [],
+        loading: false,
+        error: null
+      });
+
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+      setDashboardData(prev => ({
+        ...prev,
+        loading: false,
+        error: 'Không thể tải dữ liệu. Vui lòng thử lại sau.'
+      }));
+    }
+  };
+
   useEffect(() => {
-    const fetchDashboardData = async () => {
-      try {
-        setDashboardData(prev => ({ ...prev, loading: true, error: null }));
-
-        // Fetch all data concurrently
-        const [
-          totalUsersRes,
-          totalRevenueRes,
-          totalProductsRes,
-          topProductsRes,
-          topCustomersRes
-        ] = await Promise.all([
-          manageService.getTotalUsers(),
-          manageService.getTotalRevenue(),
-          manageService.getTotalProducts(),
-          manageService.getTopSellingProductItems(),
-          manageService.getTopCustomers()
-        ]);
-
-        setDashboardData({
-          totalUsers: totalUsersRes.data || 0,
-          totalRevenue: totalRevenueRes.data.totalRevenue || 0,
-          totalProducts: totalProductsRes.data.totalCount || 0,
-          topProducts: topProductsRes.data || [],
-          topCustomers: topCustomersRes.data || [],
-          loading: false,
-          error: null
-        });
-
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-        setDashboardData(prev => ({
-          ...prev,
-          loading: false,
-          error: 'Không thể tải dữ liệu. Vui lòng thử lại sau.'
-        }));
-      }
-    };
-
     fetchDashboardData();
   }, []);
 
-  // Format number for display
+  // Refetch when filters change
+  useEffect(() => {
+    if (!dashboardData.loading) {
+      fetchDashboardData();
+    }
+  }, [productFilter, customerFilter]);
+
   const formatNumber = (num) => {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M';
@@ -69,7 +89,28 @@ const ManagePage = () => {
     return num.toString();
   };
 
-  // Calculate statistics from API data
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
+  // Generate year options (current year and previous years)
+  const generateYearOptions = () => {
+    const currentYear = new Date().getFullYear();
+    const years = [];
+    for (let i = currentYear; i >= currentYear - 5; i--) {
+      years.push(i);
+    }
+    return years;
+  };
+
+  // Generate top options
+  const generateTopOptions = () => {
+    return [5, 10, 15, 20, 25, 30, 50, 100];
+  };
+
   const statisticsData = [
     { 
       title: 'Tổng sản phẩm', 
@@ -101,7 +142,6 @@ const ManagePage = () => {
     }
   ];
 
-  // Sample data for charts - you can replace this with real API data when available
   const revenueData = [
     { month: 'T1', revenue: 120, orders: 89 },
     { month: 'T2', revenue: 190, orders: 156 },
@@ -119,7 +159,57 @@ const ManagePage = () => {
     { name: 'Khác', value: 5, color: '#8dd1e1' }
   ];
 
-  // Loading state
+  const FilterComponent = ({ filter, setFilter, title }) => (
+    <div className="filter-section">
+      <h4>{title}</h4>
+      <div className="filter-controls">
+        <select 
+          value={filter.year} 
+          onChange={(e) => setFilter(prev => ({ ...prev, year: e.target.value }))}
+        >
+          <option value="">Tất cả năm</option>
+          {generateYearOptions().map(year => (
+            <option key={year} value={year}>{year}</option>
+          ))}
+        </select>
+        
+        <select 
+          value={filter.month} 
+          onChange={(e) => setFilter(prev => ({ ...prev, month: e.target.value }))}
+        >
+          <option value="">Tất cả tháng</option>
+          {Array.from({length: 12}, (_, i) => (
+            <option key={i + 1} value={i + 1}>Tháng {i + 1}</option>
+          ))}
+        </select>
+        
+        <input 
+          type="date" 
+          value={filter.day}
+          onChange={(e) => setFilter(prev => ({ ...prev, day: e.target.value }))}
+          placeholder="Chọn ngày"
+        />
+        
+        <select 
+          value={filter.top} 
+          onChange={(e) => setFilter(prev => ({ ...prev, top: e.target.value }))}
+        >
+          <option value="">Tất cả</option>
+          {generateTopOptions().map(num => (
+            <option key={num} value={num}>Top {num}</option>
+          ))}
+        </select>
+        
+        <button 
+          className="clear-filter-btn"
+          onClick={() => setFilter({ year: '', month: '', day: '', top: '' })}
+        >
+          Xóa bộ lọc
+        </button>
+      </div>
+    </div>
+  );
+
   if (dashboardData.loading) {
     return (
       <div className="manage-page">
@@ -131,7 +221,6 @@ const ManagePage = () => {
     );
   }
 
-  // Error state
   if (dashboardData.error) {
     return (
       <div className="manage-page">
@@ -141,7 +230,7 @@ const ManagePage = () => {
             <p>{dashboardData.error}</p>
             <button 
               className="retry-btn"
-              onClick={() => window.location.reload()}
+              onClick={fetchDashboardData}
             >
               Thử lại
             </button>
@@ -157,7 +246,7 @@ const ManagePage = () => {
         <h1>Dashboard Quản lý</h1>
         <button 
           className="refresh-btn"
-          onClick={() => window.location.reload()}
+          onClick={fetchDashboardData}
           title="Làm mới dữ liệu"
         >
           🔄
@@ -183,7 +272,6 @@ const ManagePage = () => {
 
       {/* Charts Section */}
       <div className="charts-section">
-        {/* Revenue Chart */}
         <div className="chart-container">
           <div className="chart-header">
             <h3>Doanh thu & Đơn hàng theo tháng</h3>
@@ -210,7 +298,6 @@ const ManagePage = () => {
           </ResponsiveContainer>
         </div>
 
-        {/* Product Category Pie Chart */}
         <div className="chart-container">
           <div className="chart-header">
             <h3>Phân loại sản phẩm</h3>
@@ -237,34 +324,39 @@ const ManagePage = () => {
         </div>
       </div>
 
-      {/* Top Products Table */}
+      {/* Top Products Section */}
       <div className="top-products-section">
         <div className="section-header">
           <h3>Top sản phẩm bán chạy</h3>
         </div>
+        
+        <FilterComponent 
+          filter={productFilter} 
+          setFilter={setProductFilter} 
+          title="Lọc sản phẩm"
+        />
+
         <div className="products-table">
           <div className="table-header">
             <div className="table-cell">Sản phẩm</div>
+            <div className="table-cell">Giá</div>
             <div className="table-cell">Số lượng bán</div>
-            <div className="table-cell">Doanh thu</div>
             <div className="table-cell">Thao tác</div>
           </div>
           {dashboardData.topProducts.length > 0 ? (
             dashboardData.topProducts.map((product, index) => (
-              <div key={index} className="table-row">
+              <div key={product.productItemId} className="table-row">
                 <div className="table-cell">
                   <div className="product-info">
                     <div className="product-rank">#{index + 1}</div>
-                    <div className="product-name">
-                      {product.productName || product.name || `Sản phẩm ${index + 1}`}
-                    </div>
+                    <div className="product-name">{product.name}</div>
                   </div>
                 </div>
                 <div className="table-cell">
-                  {product.totalQuantitySold || product.sales || 0}
+                  {formatCurrency(product.price)}
                 </div>
                 <div className="table-cell">
-                  {formatNumber(product.totalRevenue || product.revenue || 0)}
+                  {product.totalSold}
                 </div>
                 <div className="table-cell">
                   <button className="action-btn view-btn">Xem</button>
@@ -274,52 +366,57 @@ const ManagePage = () => {
             ))
           ) : (
             <div className="table-row">
-              <div className="table-cell" colSpan="4">
-                <div className="no-data">Không có dữ liệu sản phẩm</div>
+              <div className="table-cell no-data" style={{ gridColumn: '1 / -1' }}>
+                Không có dữ liệu sản phẩm
               </div>
             </div>
           )}
         </div>
       </div>
 
-      {/* Top Customers Table */}
+      {/* Top Customers Section */}
       <div className="top-customers-section">
         <div className="section-header">
           <h3>Top khách hàng</h3>
         </div>
+        
+        <FilterComponent 
+          filter={customerFilter} 
+          setFilter={setCustomerFilter} 
+          title="Lọc khách hàng"
+        />
+
         <div className="customers-table">
           <div className="table-header">
             <div className="table-cell">Khách hàng</div>
             <div className="table-cell">Email</div>
-            <div className="table-cell">Tổng đơn hàng</div>
+            <div className="table-cell">Số đơn hàng</div>
             <div className="table-cell">Tổng chi tiêu</div>
           </div>
           {dashboardData.topCustomers.length > 0 ? (
             dashboardData.topCustomers.map((customer, index) => (
-              <div key={index} className="table-row">
+              <div key={customer.userID} className="table-row">
                 <div className="table-cell">
                   <div className="customer-info">
                     <div className="customer-rank">#{index + 1}</div>
-                    <div className="customer-name">
-                      {customer.fullName || customer.name || `Khách hàng ${index + 1}`}
-                    </div>
+                    <div className="customer-name">{customer.customerName}</div>
                   </div>
                 </div>
                 <div className="table-cell">
-                  {customer.email || 'N/A'}
+                  {customer.customerEmail}
                 </div>
                 <div className="table-cell">
-                  {customer.totalOrders || 0}
+                  {customer.orderCount}
                 </div>
                 <div className="table-cell">
-                  {formatNumber(customer.totalSpent || customer.totalRevenue || 0)}
+                  {formatCurrency(customer.totalSpent)}
                 </div>
               </div>
             ))
           ) : (
             <div className="table-row">
-              <div className="table-cell" colSpan="4">
-                <div className="no-data">Không có dữ liệu khách hàng</div>
+              <div className="table-cell no-data" style={{ gridColumn: '1 / -1' }}>
+                Không có dữ liệu khách hàng
               </div>
             </div>
           )}

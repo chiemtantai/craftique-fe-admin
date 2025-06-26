@@ -20,10 +20,33 @@ manageAPI.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Helper function to build query parameters
+const buildQueryParams = (filters) => {
+  const params = new URLSearchParams();
+  
+  Object.entries(filters).forEach(([key, value]) => {
+    if (value && value !== '') {
+      params.append(key, value);
+    }
+  });
+  
+  return params.toString();
+};
+
 export const manageService = {
   getTotalUsers: () => manageAPI.get('/get-total-user'),
-  getTotalRevenue: () => manageAPI.get(`/get-total-revenue`),
+  getTotalRevenue: () => manageAPI.get('/get-total-revenue'),
   getTotalProducts: () => manageAPI.get('/total-products'),
-  getTopSellingProductItems: () => manageAPI.get(`/get-top-selling-product-items`),
-  getTopCustomers: () => manageAPI.get(`/get-top-customers`),
+  
+  getTopSellingProductItems: (filters = {}) => {
+    const queryParams = buildQueryParams(filters);
+    const url = queryParams ? `/get-top-selling-product-items?${queryParams}` : '/get-top-selling-product-items';
+    return manageAPI.get(url);
+  },
+  
+  getTopCustomers: (filters = {}) => {
+    const queryParams = buildQueryParams(filters);
+    const url = queryParams ? `/get-top-customers?${queryParams}` : '/get-top-customers';
+    return manageAPI.get(url);
+  },
 };
