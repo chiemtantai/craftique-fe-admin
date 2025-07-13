@@ -10,6 +10,7 @@ import WorkshopPage from './pages/workshop/WorkshopPage'
 import BlogPage from './pages/blog/BlogPage';
 import BlogDetailPage from './pages/blog-detail/BlogDetailPage';
 import CustomAdminPage from './pages/custom/CustomAdminPage';
+import CustomAdminDetail from './pages/custom/CustomAdminDetail';
 import './App.css';
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
         <Route path="/blog" element={<Layout><BlogPage /></Layout>} />
         <Route path="/blog/:blogID" element={<Layout><BlogDetailPage /></Layout>} />
         <Route path="/custom" element={<Layout><CustomAdminPage /></Layout>} />
+        <Route path="/custom/detail/:id" element={<Layout><CustomAdminDetail /></Layout>} />
         
         {/* Default route */}
         <Route path="/" element={<LoginPage />} />

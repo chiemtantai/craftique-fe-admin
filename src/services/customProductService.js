@@ -20,6 +20,20 @@ customProductAPI.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Thêm API lấy đơn hàng custom
+const customOrderAPI = axios.create({
+  baseURL: `${API_BASE_URL}/CustomProductFile`,
+  headers: { "Content-Type": "application/json" }
+});
+customOrderAPI.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("accessToken");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 export const customProductService = {
   getAll: () => customProductAPI.get("/"),
   getById: (id) => customProductAPI.get(`/${id}`),
@@ -34,6 +48,8 @@ export const customProductService = {
       },
     });
   },
+  getAllCustomOrders: () => customOrderAPI.get("/all"),
+  getCustomOrderDetail: (id) => customOrderAPI.get(`/detail/${id}`),
 };
 
 export default customProductService; 

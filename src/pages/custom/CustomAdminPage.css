@@ -184,6 +184,14 @@
 .custom-orders-table td {
   font-weight: 500;
 }
+.custom-order-row:hover {
+  background: #f5ede7;
+  transition: background 0.15s;
+}
+.custom-order-row:focus {
+  outline: 2px solid #b46b3d;
+  background: #f5ede7;
+}
 
 body, .container {
   font-family: 'Montserrat', Arial, sans-serif;
