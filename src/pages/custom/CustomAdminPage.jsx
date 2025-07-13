@@ -1,32 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './CustomAdminPage.css';
 import { customProductService } from '../../services/customProductService';
+import { useNavigate } from 'react-router-dom';
 
 const API_BASE_URL = "https://localhost:7218";
-
-const initialOrders = [
-  {
-    id: 101,
-    customer: 'Nguyễn Văn A',
-    product: 'Ly Sứ Trắng',
-    quantity: 2,
-    total: 100000,
-    status: 'Chờ xác nhận',
-  },
-  {
-    id: 102,
-    customer: 'Trần Thị B',
-    product: 'TEST',
-    quantity: 1,
-    total: 50000,
-    status: 'Đã xác nhận',
-  },
-];
 
 function CustomAdminPage() {
   const [tab, setTab] = useState('products');
   const [products, setProducts] = useState([]);
-  const [orders, setOrders] = useState(initialOrders);
+  const [orders, setOrders] = useState([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [errorOrders, setErrorOrders] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [newProduct, setNewProduct] = useState({
     productId: '',
@@ -37,6 +21,7 @@ function CustomAdminPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // Lấy danh sách sản phẩm custom từ API
   const fetchProducts = async () => {
@@ -60,8 +45,31 @@ function CustomAdminPage() {
     }
   };
 
+  // Lấy danh sách đơn hàng custom từ API
+  const fetchOrders = async () => {
+    setLoadingOrders(true);
+    setErrorOrders('');
+    try {
+      const res = await customProductService.getAllCustomOrders();
+      setOrders((res.data || []).map(item => ({
+        id: item.customProductFileID,
+        fileUrl: item.fileUrl,
+        customText: item.customText,
+        uploadedAt: item.uploadedAt,
+        quantity: item.quantity,
+        customProductImageUrl: item.customProductImageUrl,
+        customProductName: item.customProductName
+      })));
+    } catch (err) {
+      setErrorOrders('Không thể tải đơn hàng custom!');
+    } finally {
+      setLoadingOrders(false);
+    }
+  };
+
   useEffect(() => {
     if (tab === 'products') fetchProducts();
+    if (tab === 'orders') fetchOrders();
     // eslint-disable-next-line
   }, [tab]);
 
@@ -202,27 +210,47 @@ function CustomAdminPage() {
         {tab === 'orders' && (
           <>
             <h2 style={{ fontWeight: 700, fontSize: 28, color: '#b46b3d', marginBottom: 24 }}>Danh sách đơn hàng custom</h2>
+            {errorOrders && <div style={{ color: 'red', marginBottom: 12 }}>{errorOrders}</div>}
+            {loadingOrders && <div style={{ color: '#b46b3d', marginBottom: 12 }}>Đang tải...</div>}
             <div className="custom-orders-table-wrapper">
               <table className="custom-orders-table">
                 <thead>
                   <tr>
                     <th>Mã đơn</th>
-                    <th>Khách hàng</th>
-                    <th>Sản phẩm</th>
+                    <th>Ảnh file</th>
+                    <th>Sản phẩm gốc</th>
+                    <th>Nội dung custom</th>
                     <th>Số lượng</th>
-                    <th>Tổng tiền</th>
-                    <th>Trạng thái</th>
+                    <th>Ngày upload</th>
                   </tr>
                 </thead>
                 <tbody>
                   {orders.map(order => (
-                    <tr key={order.id}>
+                    <tr
+                      key={order.id}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => navigate(`/custom/detail/${order.id}`)}
+                      onKeyDown={e => { if (e.key === 'Enter') navigate(`/custom/detail/${order.id}`) }}
+                      tabIndex={0}
+                      className="custom-order-row"
+                    >
                       <td>{order.id}</td>
-                      <td>{order.customer}</td>
-                      <td>{order.product}</td>
+                      <td>
+                        {order.fileUrl && (
+                          <img src={API_BASE_URL + order.fileUrl} alt="file" style={{width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', background: '#faf7f4'}} />
+                        )}
+                      </td>
+                      <td>
+                        {order.customProductImageUrl && (
+                          <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
+                            <img src={API_BASE_URL + order.customProductImageUrl} alt="sp goc" style={{width: 48, height: 48, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', background: '#faf7f4'}} />
+                            <span style={{fontWeight: 500, color: '#b46b3d', fontSize: 15}}>{order.customProductName}</span>
+                          </div>
+                        )}
+                      </td>
+                      <td>{order.customText || ''}</td>
                       <td>{order.quantity}</td>
-                      <td>{order.total.toLocaleString()}đ</td>
-                      <td>{order.status}</td>
+                      <td>{order.uploadedAt ? new Date(order.uploadedAt).toLocaleString() : ''}</td>
                     </tr>
                   ))}
                 </tbody>
