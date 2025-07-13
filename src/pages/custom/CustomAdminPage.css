@@ -1,0 +1,222 @@
+/* Wrapper */
+.custom-admin-wrapper {
+  min-height: 100vh;
+  background: #FFF8DC;
+  padding: 32px 0;
+}
+
+.custom-admin-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  background: #fff8ec;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+}
+
+.custom-admin-tabs {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.custom-admin-tab {
+  font-weight: 700;
+  font-size: 18px;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #b46b3d;
+  padding: 10px 24px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+}
+.custom-admin-tab.active {
+  background: #fff;
+  color: #b46b3d;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+
+/* Add button */
+.add-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 24px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.add-button:hover {
+  filter: brightness(1.1);
+}
+
+/* Form */
+.custom-admin-form {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  display: flex;
+  gap: 16px;
+  align-items: flex-end;
+}
+.custom-admin-form label {
+  font-weight: 600;
+}
+.custom-admin-form input {
+  width: 100%;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  margin-top: 4px;
+  font-size: 15px;
+}
+.custom-admin-form button {
+  font-size: 16px;
+  font-weight: 600;
+  border-radius: 8px;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+}
+.custom-admin-form .save-btn {
+  background: #b46b3d;
+  color: white;
+}
+.custom-admin-form .cancel-btn {
+  background: #eee;
+  color: #b46b3d;
+}
+
+/* Product grid */
+.custom-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+}
+.custom-product-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+.custom-product-card img {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+.custom-product-card .no-image {
+  width: 120px;
+  height: 120px;
+  background: #eee;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #bbb;
+}
+.custom-product-card .product-name {
+  font-weight: 700;
+  font-size: 18px;
+  color: #b46b3d;
+  margin-bottom: 4px;
+}
+.custom-product-card .product-desc {
+  color: #888;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+.custom-product-card .product-price {
+  font-weight: 600;
+  color: #b46b3d;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.custom-product-card .delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #e53e3e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+.custom-product-card .delete-btn:hover {
+  filter: brightness(1.1);
+}
+
+/* Orders table */
+.custom-orders-table-wrapper {
+  overflow-x: auto;
+}
+.custom-orders-table {
+  width: 100%;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  border-collapse: collapse;
+}
+.custom-orders-table th, .custom-orders-table td {
+  padding: 12px;
+  text-align: center;
+}
+.custom-orders-table th {
+  background: #f7fafc;
+  color: #b46b3d;
+  font-weight: 700;
+}
+.custom-orders-table td {
+  font-weight: 500;
+}
+
+body, .container {
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+@media (max-width: 900px) {
+  .custom-admin-container {
+    padding: 16px;
+  }
+  .custom-admin-form {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+@media (max-width: 600px) {
+  .custom-admin-container {
+    padding: 6px;
+    border-radius: 10px;
+  }
+  .custom-admin-tabs {
+    flex-direction: column;
+    gap: 6px;
+  }
+  .custom-admin-form {
+    padding: 10px;
+    gap: 8px;
+  }
+  .custom-product-card {
+    padding: 10px;
+    border-radius: 8px;
+  }
+  .custom-orders-table th, .custom-orders-table td {
+    padding: 6px;
+    font-size: 12px;
+  }
+}

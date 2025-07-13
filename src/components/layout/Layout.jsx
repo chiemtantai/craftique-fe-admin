@@ -10,11 +10,10 @@ function Layout({ children }) {
   const [user, setUser] = useState(null);
   
   useEffect(() => {
-    // Kiểm tra trạng thái đăng nhập khi component mount
     if (accountService.isAuthenticated()) {
       setUser(accountService.getCurrentUser());
     }
-  }, [location]); // Re-check khi location thay đổi
+  }, [location]);
 
   const handleLoginClick = () => {
     navigate('/login');
@@ -36,84 +35,64 @@ function Layout({ children }) {
 
   return (
     <div className="container">
-      {/* Header */}
-      <header className="header">
-        <div className="contact-info">
-          <span>📞0987654321</span>
-          <span>📧Craftique2023@gmail.com</span>
+      <nav className="navbar">
+        <div className="navbar-left" onClick={() => handleNavClick('/')}> 
+          <div className="logo-circle">C</div>
+          <span className="logo-text">Craftique<br/>Admin</span>
         </div>
-        <div className="logo-container">
-          <h1 onClick={() => handleNavClick('/')}>Craftique</h1>
+        <div className="navbar-center">
+          <button 
+            onClick={() => handleNavClick('/manage')} 
+            className={isActiveNav('/manage') || isActiveNav('/') ? 'nav-link active' : 'nav-link'}
+          >
+            Quản lí
+          </button>
+          <button 
+            onClick={() => handleNavClick('/order')}
+            className={isActiveNav('/order') ? 'nav-link active' : 'nav-link'}
+          >
+            Order
+          </button>
+          <button 
+            onClick={() => handleNavClick('/products')}
+            className={isActiveNav('/products') ? 'nav-link active' : 'nav-link'}
+          >
+            Sản phẩm
+          </button>
+          <button 
+            onClick={() => handleNavClick('/custom')}
+            className={isActiveNav('/custom') ? 'nav-link active' : 'nav-link'}
+          >
+            Custom
+          </button>
+          <button 
+            onClick={() => handleNavClick('/workshop')}
+            className={isActiveNav('/workshop') ? 'nav-link active' : 'nav-link'}
+          >
+            Workshop
+          </button>
+          <button 
+            onClick={() => handleNavClick('/blog')}
+            className={isActiveNav('/blog') ? 'nav-link active' : 'nav-link'}
+          >
+            Chuyện của gốm
+          </button>
         </div>
-        <div className="search-cart">        
+        <div className="navbar-right">
           {user ? (
-            <div className="user-info">
-              <span className="user-name">Xin chào, {user.name}</span>
-              <Button variant="logout" size="md" onClick={handleLogout}>
-                Đăng xuất
-              </Button>
+            <div className="user-section">
+              <span className="user-name">Xin chào,<br/>{user.name || 'Administrator'}</span>
+              <button className="button logout" onClick={handleLogout}>
+                Logout
+              </button>
             </div>
           ) : (
-            /* ✅ Sử dụng Button component cho login */
-            <Button variant="login" size="md" onClick={handleLoginClick}>
-              Đăng nhập
-            </Button>
+            <button className="login-nav-button" onClick={handleLoginClick}>
+              👤 Đăng nhập
+            </button>
           )}
         </div>
-      </header>
-
-      {/* Navigation */}
-      <nav className="main-nav">
-        <ul>
-          <li>
-            <a 
-              href="#" 
-              onClick={() => handleNavClick('/manage')} 
-              className={isActiveNav('/manage') || isActiveNav('/') ? 'active' : ''}
-            >
-              Quản lí
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#" 
-              onClick={() => handleNavClick('/order')}
-              className={isActiveNav('/order') ? 'active' : ''}
-            >
-              Đơn hàng
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#" 
-              onClick={() => handleNavClick('/products')}
-              className={isActiveNav('/products') ? 'active' : ''}
-            >
-              Sản phẩm
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#" 
-              onClick={() => handleNavClick('/workshop')}
-              className={isActiveNav('/workshop') ? 'active' : ''}
-            >
-              Workshop
-            </a>
-          </li>
-          <li>
-            <a 
-              href="#" 
-              onClick={() => handleNavClick('/blog')}
-              className={isActiveNav('/blog') ? 'active' : ''}
-            >
-              Chuyện của gốm
-            </a>
-          </li>
-        </ul>
       </nav>
-
-      {/* Main Content */}
       <main className="main-content">
         {children}
       </main>
