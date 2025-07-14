@@ -434,6 +434,12 @@
     word-wrap: break-word;
   }
 
+  .product-name div {
+    font-size: 12px;
+    color: #888;
+    margin-top: 4px;
+  }
+
   /* Quantity and price styling */
   .quantity {
     text-align: center;
@@ -478,4 +484,9 @@
     background-color: #fee;
     color: #c53030;
   }
+}
+
+.custom-order-row:hover {
+  background: #f5f3ea;
+  transition: background 0.2s;
 }
