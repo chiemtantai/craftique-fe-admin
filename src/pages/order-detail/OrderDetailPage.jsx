@@ -2,15 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { orderService } from '../../services/orderService';
 import { productItemService } from '../../services/productItemService';
+import { customProductService } from '../../services/customProductService';
 import { Button } from '../../components/ui/button/Button'
 import UpdateOrderStatus from '../../components/feature/orders/UpdateOrderStatus'
 import './OrderDetailPage.css';
+
+const API_BASE_URL = "https://localhost:7218";
 
 const OrderDetailPage = () => {
   const { orderID } = useParams();
   const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [productItems, setProductItems] = useState({});
+  const [customProductFiles, setCustomProductFiles] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -45,27 +49,37 @@ const OrderDetailPage = () => {
   const fetchProductItems = async (orderDetails) => {
     try {
       const productItemsData = {};
-      
-      // Fetch all product items concurrently
+      const customFilesData = {};
+
       const fetchPromises = orderDetails.map(async (detail) => {
-        try {
-          const response = await productItemService.getById(detail.productItemID);
-          productItemsData[detail.productItemID] = response.data;
-        } catch (error) {
-          console.error(`Error fetching product item ${detail.productItemID}:`, error);
-          // Set fallback data if fetch fails
-          productItemsData[detail.productItemID] = {
-            productItemID: detail.productItemID,
-            productName: 'Không thể tải thông tin sản phẩm',
-            sku: 'N/A',
-            image: null,
-            price: detail.price
-          };
+        if (detail.productItemID && detail.productItemID !== 0) {
+          // Sản phẩm thường
+          try {
+            const response = await productItemService.getById(detail.productItemID);
+            productItemsData[detail.productItemID] = response.data;
+          } catch (error) {
+            productItemsData[detail.productItemID] = {
+              productItemID: detail.productItemID,
+              productName: 'Không thể tải thông tin sản phẩm',
+              sku: 'N/A',
+              image: null,
+              price: detail.price
+            };
+          }
+        } else if (detail.customProductFileID) {
+          // Sản phẩm custom
+          try {
+            const response = await customProductService.getCustomOrderDetail(detail.customProductFileID);
+            customFilesData[detail.customProductFileID] = response.data;
+          } catch (error) {
+            customFilesData[detail.customProductFileID] = null;
+          }
         }
       });
 
       await Promise.all(fetchPromises);
       setProductItems(productItemsData);
+      setCustomProductFiles(customFilesData);
     } catch (error) {
       console.error('Error fetching product items:', error);
     }
@@ -112,6 +126,13 @@ const OrderDetailPage = () => {
       case 'Refunded': return 'Đã hoàn tiền';
       default: return status;
     }
+  };
+
+  // Hàm lấy src ảnh đúng cho custom file
+  const getImageSrc = (url) => {
+    if (!url) return 'https://via.placeholder.com/120x120?text=No+Image';
+    if (url.startsWith('/')) return API_BASE_URL + url;
+    return url;
   };
 
   const handleUpdateStatus = () => {
@@ -245,36 +266,78 @@ const OrderDetailPage = () => {
               <tbody>
                 {order.orderDetails && order.orderDetails.length > 0 ? (
                   order.orderDetails.map((detail, index) => {
-                    const productItem = productItems[detail.productItemID];
-                    return (
-                      <tr key={detail.orderDetailID}>
-                        <td>{index + 1}</td>
-                        <td>
-                          {productItem?.image ? (
-                            <img 
-                              src={productItem.image} 
-                              alt={productItem.name || 'Product'}
-                              className="product-image"
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <div className="no-image">
-                              <span>Không có ảnh</span>
-                            </div>
-                          )}
-                        </td>
-                        <td className="product-name">
-                          {productItem?.name || 'Đang tải...'}
-                        </td>
-                        <td>{productItem?.sku || 'N/A'}</td>
-                        <td>#{detail.productItemID}</td>
-                        <td className="quantity">{detail.quantity}</td>
-                        <td>{formatPrice(detail.price)}</td>
-                        <td className="subtotal">{formatPrice(detail.price * detail.quantity)}</td>
-                      </tr>
-                    );
+                    // Sản phẩm thường
+                    if (detail.productItemID && detail.productItemID !== 0) {
+                      const productItem = productItems[detail.productItemID];
+                      return (
+                        <tr key={detail.orderDetailID}>
+                          <td>{index + 1}</td>
+                          <td>
+                            {productItem?.image ? (
+                              <img src={productItem.image} alt={productItem.name || 'Product'} className="product-image" />
+                            ) : (
+                              <div className="no-image"><span>Không có ảnh</span></div>
+                            )}
+                          </td>
+                          <td className="product-name">{productItem?.name || 'Đang tải...'}</td>
+                          <td>{productItem?.sku || 'N/A'}</td>
+                          <td>#{detail.productItemID}</td>
+                          <td className="quantity">{detail.quantity}</td>
+                          <td>{formatPrice(detail.price)}</td>
+                          <td className="subtotal">{formatPrice(detail.price * detail.quantity)}</td>
+                        </tr>
+                      );
+                    }
+                    // Sản phẩm custom
+                    else if (detail.customProductFileID) {
+                      const customFile = customProductFiles[detail.customProductFileID]?.data || customProductFiles[detail.customProductFileID];
+                      return (
+                        <tr
+                          key={detail.orderDetailID}
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => navigate(`/custom/detail/${customFile.customProductFileID || customFile.customProductFileId || detail.customProductFileID}`)}
+                          onKeyDown={e => { if (e.key === 'Enter') navigate(`/custom/detail/${customFile.customProductFileID || customFile.customProductFileId || detail.customProductFileID}`) }}
+                          tabIndex={0}
+                          className="custom-order-row"
+                        >
+                          <td>{index + 1}</td>
+                          <td>
+                            {customFile?.fileUrl ? (
+                              <img
+                                src={getImageSrc(customFile.fileUrl)}
+                                alt="Ảnh khách in"
+                                className="product-image"
+                                style={{ width: 60, height: 60, objectFit: 'cover' }}
+                              />
+                            ) : (
+                              <div className="no-image"><span>Không có ảnh</span></div>
+                            )}
+                          </td>
+                          <td className="product-name">
+                            {customFile?.productName || 'Sản phẩm custom'}
+                            {customFile?.customText && (
+                              <div style={{ fontSize: 12, color: '#888' }}>
+                                Nội dung: {customFile.customText}
+                              </div>
+                            )}
+                          </td>
+                          <td>{customFile?.productID || 'N/A'}</td>
+                          <td>Custom</td>
+                          <td className="quantity">{detail.quantity}</td>
+                          <td>{formatPrice(detail.price)}</td>
+                          <td className="subtotal">{formatPrice(detail.price * detail.quantity)}</td>
+                        </tr>
+                      );
+                    }
+                    // Trường hợp không xác định
+                    else {
+                      return (
+                        <tr key={detail.orderDetailID}>
+                          <td>{index + 1}</td>
+                          <td colSpan="7" className="no-data">Không xác định loại sản phẩm</td>
+                        </tr>
+                      );
+                    }
                   })
                 ) : (
                   <tr>

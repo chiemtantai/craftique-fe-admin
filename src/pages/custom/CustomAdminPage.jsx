@@ -132,12 +132,6 @@ function CustomAdminPage() {
           >
             Quản lý sản phẩm custom
           </button>
-          <button
-            className={`custom-admin-tab${tab === 'orders' ? ' active' : ''}`}
-            onClick={() => setTab('orders')}
-          >
-            Quản lý đơn hàng custom
-          </button>
         </div>
 
         {/* Tab Quản lý sản phẩm custom */}
@@ -206,58 +200,7 @@ function CustomAdminPage() {
           </>
         )}
 
-        {/* Tab Quản lý đơn hàng custom */}
-        {tab === 'orders' && (
-          <>
-            <h2 style={{ fontWeight: 700, fontSize: 28, color: '#b46b3d', marginBottom: 24 }}>Danh sách đơn hàng custom</h2>
-            {errorOrders && <div style={{ color: 'red', marginBottom: 12 }}>{errorOrders}</div>}
-            {loadingOrders && <div style={{ color: '#b46b3d', marginBottom: 12 }}>Đang tải...</div>}
-            <div className="custom-orders-table-wrapper">
-              <table className="custom-orders-table">
-                <thead>
-                  <tr>
-                    <th>Mã đơn</th>
-                    <th>Ảnh file</th>
-                    <th>Sản phẩm gốc</th>
-                    <th>Nội dung custom</th>
-                    <th>Số lượng</th>
-                    <th>Ngày upload</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.map(order => (
-                    <tr
-                      key={order.id}
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => navigate(`/custom/detail/${order.id}`)}
-                      onKeyDown={e => { if (e.key === 'Enter') navigate(`/custom/detail/${order.id}`) }}
-                      tabIndex={0}
-                      className="custom-order-row"
-                    >
-                      <td>{order.id}</td>
-                      <td>
-                        {order.fileUrl && (
-                          <img src={API_BASE_URL + order.fileUrl} alt="file" style={{width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', background: '#faf7f4'}} />
-                        )}
-                      </td>
-                      <td>
-                        {order.customProductImageUrl && (
-                          <div style={{display: 'flex', alignItems: 'center', gap: 8}}>
-                            <img src={API_BASE_URL + order.customProductImageUrl} alt="sp goc" style={{width: 48, height: 48, objectFit: 'cover', borderRadius: 8, border: '1px solid #eee', background: '#faf7f4'}} />
-                            <span style={{fontWeight: 500, color: '#b46b3d', fontSize: 15}}>{order.customProductName}</span>
-                          </div>
-                        )}
-                      </td>
-                      <td>{order.customText || ''}</td>
-                      <td>{order.quantity}</td>
-                      <td>{order.uploadedAt ? new Date(order.uploadedAt).toLocaleString() : ''}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </>
-        )}
+        
       </div>
     </div>
   );

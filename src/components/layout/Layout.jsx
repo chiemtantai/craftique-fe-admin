@@ -36,7 +36,7 @@ function Layout({ children }) {
   return (
     <div className="container">
       <nav className="navbar">
-        <div className="navbar-left" onClick={() => handleNavClick('/')}> 
+        <div className="navbar-left" onClick={() => handleNavClick('/manage')}> 
           <div className="logo-circle">C</div>
           <span className="logo-text">Craftique<br/>Admin</span>
         </div>
