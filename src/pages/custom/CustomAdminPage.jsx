@@ -8,12 +8,10 @@ const API_BASE_URL = "https://localhost:7218";
 function CustomAdminPage() {
   const [tab, setTab] = useState('products');
   const [products, setProducts] = useState([]);
-  const [orders, setOrders] = useState([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [errorOrders, setErrorOrders] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [newProduct, setNewProduct] = useState({
-    productId: '',
     customName: '',
     description: '',
     price: '',
@@ -22,6 +20,7 @@ function CustomAdminPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const [maxProductId, setMaxProductId] = useState(0);
 
   // Lấy danh sách sản phẩm custom từ API
   const fetchProducts = async () => {
@@ -29,15 +28,18 @@ function CustomAdminPage() {
     setError('');
     try {
       const res = await customProductService.getAll();
-      setProducts(
-        (res.data || []).map(item => ({
-          id: item.customProductId || item.customProductID,
-          customName: item.customName,
-          description: item.description,
-          price: item.price,
-          imageUrl: item.imageUrl,
-        }))
-      );
+      const productList = (res.data || []).map(item => ({
+        id: item.customProductId || item.customProductID,
+        productId: item.productId || item.ProductID || 0,
+        customName: item.customName,
+        description: item.description,
+        price: item.price,
+        imageUrl: item.imageUrl,
+      }));
+      setProducts(productList);
+      // Tìm max ProductID
+      const maxId = productList.reduce((max, p) => p.productId > max ? p.productId : max, 0);
+      setMaxProductId(maxId);
     } catch (err) {
       setError('Không thể tải sản phẩm custom!');
     } finally {
@@ -68,10 +70,17 @@ function CustomAdminPage() {
   };
 
   useEffect(() => {
-    if (tab === 'products') fetchProducts();
-    if (tab === 'orders') fetchOrders();
+    fetchProducts();
     // eslint-disable-next-line
-  }, [tab]);
+  }, []);
+
+  // Khi mở form thêm sản phẩm, không cần set productId vào state nữa
+  useEffect(() => {
+    if (showAdd) {
+      // setNewProduct(prev => ({ ...prev, productId: maxProductId + 1 })); // Bỏ dòng này
+    }
+    // eslint-disable-next-line
+  }, [showAdd]);
 
   // Thêm sản phẩm custom qua API (bắt buộc có ảnh, đúng trường backend)
   const handleAddProduct = async (e) => {
@@ -83,8 +92,10 @@ function CustomAdminPage() {
     setLoading(true);
     setError('');
     try {
+      // Sinh ProductID tự động
+      const autoProductId = products.reduce((max, p) => p.productId > max ? p.productId : max, 0) + 1;
       const formData = new FormData();
-      formData.append('ProductID', newProduct.productId);
+      formData.append('ProductID', autoProductId);
       formData.append('CustomName', newProduct.customName);
       formData.append('Description', newProduct.description);
       formData.append('Price', newProduct.price);
@@ -127,7 +138,7 @@ function CustomAdminPage() {
       <div className="custom-admin-container">
         <div className="custom-admin-tabs">
           <button
-            className={`custom-admin-tab${tab === 'products' ? ' active' : ''}`}
+            className={`custom-admin-tab active`}
             onClick={() => setTab('products')}
           >
             Quản lý sản phẩm custom
@@ -135,72 +146,52 @@ function CustomAdminPage() {
         </div>
 
         {/* Tab Quản lý sản phẩm custom */}
-        {tab === 'products' && (
-          <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
-              <h2 style={{ fontWeight: 700, fontSize: 28, color: '#b46b3d' }}>Danh sách sản phẩm custom</h2>
-              <button className="add-button" onClick={() => setShowAdd(true)}>
-                + Thêm sản phẩm
-              </button>
-            </div>
-            {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
-            {loading && <div style={{ color: '#b46b3d', marginBottom: 12 }}>Đang tải...</div>}
-            {/* Form thêm sản phẩm */}
-            {showAdd && (
-              <form onSubmit={handleAddProduct} className="custom-admin-form">
-                <div style={{ width: 180 }}>
-                  <label>Sản phẩm gốc (bắt buộc)</label>
-                  <select
-                    required
-                    value={newProduct.productId}
-                    onChange={e => setNewProduct({ ...newProduct, productId: e.target.value })}
-                  >
-                    <option value="">-- Chọn sản phẩm gốc --</option>
-                    <option value="1">Bộ ly sứ in theo yêu cầu</option>
-                    <option value="2">Ly sứ trắng in logo</option>
-                    <option value="3">Ly sứ cao cấp viền vàng</option>
-                    <option value="4">Chén cơm in tên</option>
-                    <option value="5">Chén mini custom logo</option>
-                    <option value="6">Đĩa tròn in ảnh gia đình</option>
-                    <option value="7">Đĩa vuông nghệ thuật</option>
-                  </select>
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label>Tên sản phẩm</label>
-                  <input required value={newProduct.customName} onChange={e => setNewProduct({ ...newProduct, customName: e.target.value })} />
-                </div>
-                <div style={{ flex: 2 }}>
-                  <label>Mô tả</label>
-                  <input value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} />
-                </div>
-                <div style={{ width: 120 }}>
-                  <label>Giá (VNĐ)</label>
-                  <input required type="number" min={0} value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} />
-                </div>
-                <div style={{ width: 180 }}>
-                  <label>Ảnh (bắt buộc)</label>
-                  <input required type="file" accept="image/*" onChange={e => setNewProduct({ ...newProduct, imageFile: e.target.files[0] })} />
-                </div>
-                <button type="submit" className="save-btn">Lưu</button>
-                <button type="button" className="cancel-btn" onClick={() => setShowAdd(false)}>Hủy</button>
-              </form>
-            )}
-            {/* Danh sách sản phẩm custom */}
-            <div className="custom-product-grid">
-              {products.map(product => (
-                <div key={product.id} className="custom-product-card">
-                  <img src={getImageSrc(product.imageUrl)} alt={product.customName} />
-                  <div className="product-name">{product.customName}</div>
-                  <div className="product-desc">{product.description}</div>
-                  <div className="product-price">{product.price?.toLocaleString()}đ</div>
-                  <button className="delete-btn" onClick={() => handleDeleteProduct(product.id)}>Xóa</button>
-                </div>
-              ))}
-            </div>
-          </>
-        )}
-
-        
+        <>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
+            <h2 style={{ fontWeight: 700, fontSize: 28, color: '#b46b3d' }}>Danh sách sản phẩm custom</h2>
+            <button className="add-button" onClick={() => setShowAdd(true)}>
+              + Thêm sản phẩm
+            </button>
+          </div>
+          {error && <div style={{ color: 'red', marginBottom: 12 }}>{error}</div>}
+          {loading && <div style={{ color: '#b46b3d', marginBottom: 12 }}>Đang tải...</div>}
+          {/* Form thêm sản phẩm */}
+          {showAdd && (
+            <form onSubmit={handleAddProduct} className="custom-admin-form">
+              {/* Bỏ trường chọn sản phẩm gốc và ProductID */}
+              <div style={{ flex: 1 }}>
+                <label>Tên sản phẩm</label>
+                <input required value={newProduct.customName} onChange={e => setNewProduct({ ...newProduct, customName: e.target.value })} />
+              </div>
+              <div style={{ flex: 2 }}>
+                <label>Mô tả</label>
+                <input value={newProduct.description} onChange={e => setNewProduct({ ...newProduct, description: e.target.value })} />
+              </div>
+              <div style={{ width: 120 }}>
+                <label>Giá (VNĐ)</label>
+                <input required type="number" min={0} value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} />
+              </div>
+              <div style={{ width: 180 }}>
+                <label>Ảnh (bắt buộc)</label>
+                <input required type="file" accept="image/*" onChange={e => setNewProduct({ ...newProduct, imageFile: e.target.files[0] })} />
+              </div>
+              <button type="submit" className="save-btn">Lưu</button>
+              <button type="button" className="cancel-btn" onClick={() => setShowAdd(false)}>Hủy</button>
+            </form>
+          )}
+          {/* Danh sách sản phẩm custom */}
+          <div className="custom-product-grid">
+            {products.map(product => (
+              <div key={product.id} className="custom-product-card">
+                <img src={getImageSrc(product.imageUrl)} alt={product.customName} />
+                <div className="product-name">{product.customName}</div>
+                <div className="product-desc">{product.description}</div>
+                <div className="product-price">{product.price?.toLocaleString()}đ</div>
+                <button className="delete-btn" onClick={() => handleDeleteProduct(product.id)}>Xóa</button>
+              </div>
+            ))}
+          </div>
+        </>
       </div>
     </div>
   );
