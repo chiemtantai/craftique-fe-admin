@@ -1,6 +1,6 @@
 import axios from "axios";
 
-// const API_BASE_URL = 'https://localhost:7218/api';
+
 const API_BASE_URL = "https://api-craftique.innosphere.io.vn/api";
 
 const customProductAPI = axios.create({

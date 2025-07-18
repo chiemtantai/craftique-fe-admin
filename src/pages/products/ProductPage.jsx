@@ -100,17 +100,17 @@ const ProductPage = () => {
     }
 
     return (
-      <div className="pagination-container">
-        <div className="pagination-info">
+      <div className="modern-pagination">
+        <div className="modern-pagination-info">
           Hiển thị {Math.min((currentPage - 1) * pageSize + 1, totalItems)} - {Math.min(currentPage * pageSize, totalItems)} của {totalItems} kết quả
         </div>
-        <div className="pagination-controls">
+        <div className="modern-pagination-controls">
           <Button
             variant="outline"
             size="sm"
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={!hasPreviousPage}
-            className="pagination-button"
+            className="modern-pagination-btn"
           >
             <ChevronLeft size={16} />
             Trước
@@ -122,11 +122,11 @@ const ProductPage = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(1)}
-                className="pagination-number"
+                className="modern-pagination-number"
               >
                 1
               </Button>
-              {startPage > 2 && <span className="pagination-ellipsis">...</span>}
+              {startPage > 2 && <span className="modern-pagination-ellipsis">...</span>}
             </>
           )}
           
@@ -136,7 +136,7 @@ const ProductPage = () => {
               variant={page === currentPage ? "primary" : "outline"}
               size="sm"
               onClick={() => handlePageChange(page)}
-              className="pagination-number"
+              className={`modern-pagination-number${page === currentPage ? ' active' : ''}`}
             >
               {page}
             </Button>
@@ -144,12 +144,12 @@ const ProductPage = () => {
           
           {endPage < totalPages && (
             <>
-              {endPage < totalPages - 1 && <span className="pagination-ellipsis">...</span>}
+              {endPage < totalPages - 1 && <span className="modern-pagination-ellipsis">...</span>}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => handlePageChange(totalPages)}
-                className="pagination-number"
+                className="modern-pagination-number"
               >
                 {totalPages}
               </Button>
@@ -161,7 +161,7 @@ const ProductPage = () => {
             size="sm"
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={!hasNextPage}
-            className="pagination-button"
+            className="modern-pagination-btn"
           >
             Sau
             <ChevronRight size={16} />
@@ -199,36 +199,34 @@ const ProductPage = () => {
 
   return (
     <div className="product-page">
-      <div className="page-header">
+      <div className="modern-header">
         <div className="header-content">
-          <h1 className="page-title">{getTabTitle()}</h1>
+          <h1 className="modern-title">{getTabTitle()}</h1>
           <button 
-            className="add-button"
+            className="modern-add-btn"
             onClick={handleAddNew}
           >
-            <Plus size={20} />
+            <Plus size={22} />
             {getAddButtonText()}
           </button>
         </div>
-        
-        <div className="tabs-container">
+        <div className="modern-tabs">
           {tabs.map(tab => {
             const IconComponent = tab.icon;
             return (
               <button
                 key={tab.id}
-                className={`tab ${activeTab === tab.id ? 'active' : ''}`}
+                className={`modern-tab${activeTab === tab.id ? ' active' : ''}`}
                 onClick={() => handleTabChange(tab.id)}
               >
-                <IconComponent size={18} />
+                <IconComponent size={20} />
                 <span>{tab.label}</span>
               </button>
             );
           })}
         </div>
       </div>
-
-      <div className="page-content">
+      <div className="modern-content">
         <ProductList
           key={refreshTrigger}
           activeTab={activeTab}
@@ -239,10 +237,8 @@ const ProductPage = () => {
           pageSize={pageSize}
           onPaginationData={handlePaginationData}
         />
-        
         {renderPagination()}
       </div>
-
       <AddProduct
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}

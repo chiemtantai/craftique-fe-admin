@@ -19,6 +19,10 @@ const ProductList = ({
   const [productItems, setProductItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [previewImages, setPreviewImages] = useState([]);
+  const [previewIndex, setPreviewIndex] = useState(0);
 
   useEffect(() => {
     fetchData();
@@ -177,6 +181,37 @@ const ProductList = ({
 
   return (
     <div className="product-list">
+      {/* Modal xem ảnh lớn */}
+      {showPreview && (
+        <div className="image-preview-modal" onClick={() => setShowPreview(false)}>
+          <div className="image-preview-content" onClick={e => e.stopPropagation()}>
+            {/* Nút chuyển trái */}
+            {previewImages.length > 1 && (
+              <button className="image-preview-arrow left" onClick={() => setPreviewIndex((previewIndex-1+previewImages.length)%previewImages.length)}>&lt;</button>
+            )}
+            <img src={previewImages[previewIndex]} alt="Preview" className="image-preview-main" />
+            {/* Nút chuyển phải */}
+            {previewImages.length > 1 && (
+              <button className="image-preview-arrow right" onClick={() => setPreviewIndex((previewIndex+1)%previewImages.length)}>&gt;</button>
+            )}
+            <button className="image-preview-close" onClick={() => setShowPreview(false)}>×</button>
+            {/* Thumbnail */}
+            {previewImages.length > 1 && (
+              <div className="image-preview-thumbnails">
+                {previewImages.map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={"thumb"+idx}
+                    className={"image-preview-thumb" + (idx===previewIndex ? " active" : "")}
+                    onClick={() => setPreviewIndex(idx)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {activeTab === "categories" && (
         <div className="cards-grid">
           {categories.map((category) => (
@@ -259,7 +294,13 @@ const ProductList = ({
           {productItems.map((item) => (
             <div key={item.productItemID} className="variant-card">
               <div className="variant-content">
-                <div className="variant-image">
+                <div className="variant-image" style={{cursor:'zoom-in'}} onClick={() => {
+                  if(item.images && item.images.length > 0) {
+                    setPreviewImages(item.images.map(img=>img.imageUrl));
+                    setPreviewIndex(0);
+                    setShowPreview(true);
+                  }
+                }}>
                   <img
                     src={
                       item.images && item.images.length > 0
