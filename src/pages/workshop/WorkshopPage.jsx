@@ -15,7 +15,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table/Table";
-import { useWorkshopList } from "../../components/feature/workshops/workshopList";
+import { useWorkshopList } from "../../components/feature/workshops/WorkshopList";
 import { useSendEmail } from "../../components/feature/workshops/SendEmail";
 import { useConfirmEmail } from "../../components/feature/workshops/ConfirmEmail";
 import { useRejectEmail } from "../../components/feature/workshops/RejectEmail";
