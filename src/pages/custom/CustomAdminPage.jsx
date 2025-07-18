@@ -3,7 +3,8 @@ import './CustomAdminPage.css';
 import { customProductService } from '../../services/customProductService';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = "https://localhost:7218";
+// const API_BASE_URL = 'https://localhost:7218';
+const API_BASE_URL = "https://api-craftique.innosphere.io.vn";
 
 function CustomAdminPage() {
   const [tab, setTab] = useState('products');

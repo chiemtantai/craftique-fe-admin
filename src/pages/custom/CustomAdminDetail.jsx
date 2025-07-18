@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { customProductService } from '../../services/customProductService';
 import './CustomAdminDetail.css';
 
-const API_BASE_URL = "https://localhost:7218";
+// const API_BASE_URL = 'https://localhost:7218';
+const API_BASE_URL = "https://api-craftique.innosphere.io.vn";
 
 function CustomAdminDetail() {
   const { id } = useParams();
