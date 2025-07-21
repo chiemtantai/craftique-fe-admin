@@ -3,8 +3,8 @@ import './CustomAdminPage.css';
 import { customProductService } from '../../services/customProductService';
 import { useNavigate } from 'react-router-dom';
 
-// const API_BASE_URL = 'https://localhost:7218';
-const API_BASE_URL = "https://api-craftique.innosphere.io.vn";
+const API_BASE_URL = 'https://localhost:7218';
+// const API_BASE_URL = "https://api-craftique.innosphere.io.vn";
 
 function CustomAdminPage() {
   const [tab, setTab] = useState('products');
@@ -16,7 +16,7 @@ function CustomAdminPage() {
     customName: '',
     description: '',
     price: '',
-    imageFile: null
+    imageUrl: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -86,24 +86,24 @@ function CustomAdminPage() {
   // Thêm sản phẩm custom qua API (bắt buộc có ảnh, đúng trường backend)
   const handleAddProduct = async (e) => {
     e.preventDefault();
-    if (!newProduct.customName || !newProduct.price || !newProduct.imageFile) {
-      setError('Vui lòng nhập đầy đủ thông tin và chọn ảnh!');
+    if (!newProduct.customName || !newProduct.price || !newProduct.imageUrl) {
+      setError('Vui lòng nhập đầy đủ thông tin và link ảnh!');
       return;
     }
     setLoading(true);
     setError('');
     try {
-      // Sinh ProductID tự động
       const autoProductId = products.reduce((max, p) => p.productId > max ? p.productId : max, 0) + 1;
-      const formData = new FormData();
-      formData.append('ProductID', autoProductId);
-      formData.append('CustomName', newProduct.customName);
-      formData.append('Description', newProduct.description);
-      formData.append('Price', newProduct.price);
-      formData.append('Image', newProduct.imageFile);
-      await customProductService.addWithImage(formData);
+      const data = {
+        ProductID: autoProductId,
+        CustomName: newProduct.customName,
+        Description: newProduct.description,
+        Price: newProduct.price,
+        ImageUrl: newProduct.imageUrl
+      };
+      await customProductService.create(data);
       setShowAdd(false);
-      setNewProduct({ customName: '', description: '', price: '', imageFile: null });
+      setNewProduct({ customName: '', description: '', price: '', imageUrl: '' });
       fetchProducts();
     } catch (err) {
       setError('Không thể thêm sản phẩm!');
@@ -173,8 +173,14 @@ function CustomAdminPage() {
                 <input required type="number" min={0} value={newProduct.price} onChange={e => setNewProduct({ ...newProduct, price: e.target.value })} />
               </div>
               <div style={{ width: 180 }}>
-                <label>Ảnh (bắt buộc)</label>
-                <input required type="file" accept="image/*" onChange={e => setNewProduct({ ...newProduct, imageFile: e.target.files[0] })} />
+                <label>Link ảnh (bắt buộc)</label>
+                <input
+                  required
+                  type="text"
+                  placeholder="https://..."
+                  value={newProduct.imageUrl || ""}
+                  onChange={e => setNewProduct({ ...newProduct, imageUrl: e.target.value })}
+                />
               </div>
               <button type="submit" className="save-btn">Lưu</button>
               <button type="button" className="cancel-btn" onClick={() => setShowAdd(false)}>Hủy</button>
