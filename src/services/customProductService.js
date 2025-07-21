@@ -1,7 +1,7 @@
 import axios from "axios";
 
-
-const API_BASE_URL = "https://api-craftique.innosphere.io.vn/api";
+const API_BASE_URL = 'https://localhost:7218/api';
+// const API_BASE_URL = "https://api-craftique.innosphere.io.vn/api";
 
 const customProductAPI = axios.create({
   baseURL: `${API_BASE_URL}/CustomProduct`,
@@ -38,7 +38,7 @@ customOrderAPI.interceptors.request.use(
 export const customProductService = {
   getAll: () => customProductAPI.get("/"),
   getById: (id) => customProductAPI.get(`/${id}`),
-  create: (data) => customProductAPI.post("/", data),
+  create: (data) => customProductAPI.post("/admin", data),
   update: (id, data) => customProductAPI.put(`/${id}`, data),
   delete: (id) => customProductAPI.delete(`/${id}`),
   addWithImage: (formData) => {
