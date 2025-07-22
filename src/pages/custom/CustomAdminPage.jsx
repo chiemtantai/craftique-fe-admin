@@ -3,8 +3,6 @@ import './CustomAdminPage.css';
 import { customProductService } from '../../services/customProductService';
 import { useNavigate } from 'react-router-dom';
 
-const API_BASE_URL = 'https://localhost:7218';
-// const API_BASE_URL = "https://api-craftique.innosphere.io.vn";
 
 function CustomAdminPage() {
   const [tab, setTab] = useState('products');
@@ -72,18 +70,18 @@ function CustomAdminPage() {
 
   useEffect(() => {
     fetchProducts();
-    // eslint-disable-next-line
+
   }, []);
 
-  // Khi mở form thêm sản phẩm, không cần set productId vào state nữa
+
   useEffect(() => {
     if (showAdd) {
-      // setNewProduct(prev => ({ ...prev, productId: maxProductId + 1 })); // Bỏ dòng này
+ 
     }
-    // eslint-disable-next-line
+
   }, [showAdd]);
 
-  // Thêm sản phẩm custom qua API (bắt buộc có ảnh, đúng trường backend)
+
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!newProduct.customName || !newProduct.price || !newProduct.imageUrl) {
@@ -128,11 +126,7 @@ function CustomAdminPage() {
   };
 
   // Hàm lấy src ảnh đúng
-  const getImageSrc = (imageUrl) => {
-    if (!imageUrl) return 'https://via.placeholder.com/120x120?text=No+Image';
-    if (imageUrl.startsWith('/')) return API_BASE_URL + imageUrl;
-    return imageUrl;
-  };
+  const getImageSrc = (url) => url;
 
   return (
     <div className="custom-admin-wrapper">

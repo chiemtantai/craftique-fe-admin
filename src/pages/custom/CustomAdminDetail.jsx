@@ -3,8 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { customProductService } from '../../services/customProductService';
 import './CustomAdminDetail.css';
 
-// const API_BASE_URL = 'https://localhost:7218';
-const API_BASE_URL = "https://api-craftique.innosphere.io.vn";
 
 function CustomAdminDetail() {
   const { id } = useParams();
@@ -32,11 +30,7 @@ function CustomAdminDetail() {
     }
   };
 
-  const getImageSrc = (url) => {
-    if (!url) return 'https://via.placeholder.com/120x120?text=No+Image';
-    if (url.startsWith('/')) return API_BASE_URL + url;
-    return url;
-  };
+  const getImageSrc = (url) => url;
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
